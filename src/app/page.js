@@ -13,8 +13,16 @@ export default function Home() {
   const router = useRouter();
 
   const users = {
-    Adam: { username: "Adam", id: 1, password: process.env.NEXT_PUBLIC_ADAM_PASSWORD },
-    Cory: { username: "Cory", id: 2, password: process.env.NEXT_PUBLIC_CORY_PASSWORD },
+    Adam: {
+      username: "Adam",
+      id: 1,
+      password: process.env.NEXT_PUBLIC_ADAM_PASSWORD,
+    },
+    Cory: {
+      username: "Cory",
+      id: 2,
+      password: process.env.NEXT_PUBLIC_CORY_PASSWORD,
+    },
   };
 
   const handleLogin = (e) => {
