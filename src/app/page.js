@@ -69,10 +69,10 @@ export default function Home() {
             </span>
           </div> */}
         </div>
-        <h1 className="mb-6 max-w-md text-4xl font-light leading-tight text-white font-[family-name:var(--font-tektur)]">
+        <h1 className="mb-6 max-w-md text-[36px] font-light leading-tight text-white font-[family-name:var(--font-tektur)]">
           Track. Compare. Improve. Your Fitness Journey Starts Here.
         </h1>
-        <p className="mt-auto text-xs text-gray-500">
+        <p className=" text-xs text-gray-500">
           Rest & recovery is not absence,
           <br />
           but the prerequisite for greatness.
@@ -163,7 +163,7 @@ export default function Home() {
           </form>
 
           {/* Footer Links */}
-          <div className="mt-8 flex justify-center gap-4 text-xs text-gray-600">
+          {/* <div className="mt-8 flex justify-center gap-4 text-xs text-gray-600">
             <a href="#" className="hover:text-gray-400">
               Terms of Service
             </a>
@@ -171,7 +171,7 @@ export default function Home() {
             <a href="#" className="hover:text-gray-400">
               Privacy Policy
             </a>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
