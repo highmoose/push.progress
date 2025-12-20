@@ -97,8 +97,11 @@ async function getMuscleGroupAverage(userId, muscleGroup, days) {
 
   // Step 2: Group by exercise and find best 1RM per exercise
   const exerciseBestMap = {};
-  records.forEach(record => {
-    if (!exerciseBestMap[record.exercise_id] || record.estimated_1rm > exerciseBestMap[record.exercise_id]) {
+  records.forEach((record) => {
+    if (
+      !exerciseBestMap[record.exercise_id] ||
+      record.estimated_1rm > exerciseBestMap[record.exercise_id]
+    ) {
       exerciseBestMap[record.exercise_id] = record.estimated_1rm;
     }
   });
@@ -114,7 +117,7 @@ async function getMuscleGroupAverage(userId, muscleGroup, days) {
 
   // Step 4: Calculate the average of top exercises for each date
   const dateMap = {};
-  records.forEach(record => {
+  records.forEach((record) => {
     const date = record.record_date;
     if (!dateMap[date]) {
       dateMap[date] = [];
@@ -129,8 +132,9 @@ async function getMuscleGroupAverage(userId, muscleGroup, days) {
   // Step 5: Create final data points with averaged 1RMs per date
   return Object.keys(dateMap)
     .sort()
-    .map(date => ({
-      weight_kg: dateMap[date].reduce((sum, val) => sum + val, 0) / dateMap[date].length,
-      record_date: date
+    .map((date) => ({
+      weight_kg:
+        dateMap[date].reduce((sum, val) => sum + val, 0) / dateMap[date].length,
+      record_date: date,
     }));
 }
