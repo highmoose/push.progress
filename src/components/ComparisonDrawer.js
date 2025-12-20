@@ -62,6 +62,9 @@ export default function ComparisonDrawer({ user, onClose }) {
       }
 
       const data = await fetchComparisonData(user.id, otherUserId, options);
+      console.log("Comparison data received:", data);
+      console.log("User1 data:", data.user1);
+      console.log("User2 data:", data.user2);
       setComparisonData(data);
     } catch (error) {
       console.error("Failed to load comparison data:", error);

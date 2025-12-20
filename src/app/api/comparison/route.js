@@ -76,7 +76,7 @@ async function getMuscleGroupAverage(userId, muscleGroup, days) {
       er.exercise_id,
       er.weight_kg,
       er.reps,
-      er.record_date,
+      DATE_FORMAT(er.record_date, '%Y-%m-%d') as record_date,
       (er.weight_kg * (1 + er.reps / 30)) as estimated_1rm
     FROM exercise_records er
     JOIN exercises e ON er.exercise_id = e.id
@@ -95,7 +95,11 @@ async function getMuscleGroupAverage(userId, muscleGroup, days) {
 
   const records = await query(sql, params);
 
-  // Step 2: Group by exercise and find best 1RM per exercise
+  if (records.length === 0) {
+    return [];
+  }
+
+  // Step 2: Find overall best 1RM for each exercise (to identify top 3 exercises)
   const exerciseBestMap = {};
   records.forEach((record) => {
     if (
@@ -106,35 +110,43 @@ async function getMuscleGroupAverage(userId, muscleGroup, days) {
     }
   });
 
-  // Step 3: Get top 3 exercises by best 1RM
-  const topExercises = Object.values(exerciseBestMap)
-    .sort((a, b) => b - a)
-    .slice(0, 3);
+  // Step 3: Get IDs of top 3 exercises by best 1RM
+  const topExerciseIds = Object.entries(exerciseBestMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([exerciseId]) => parseInt(exerciseId));
 
-  if (topExercises.length === 0) {
+  if (topExerciseIds.length === 0) {
     return [];
   }
 
-  // Step 4: Calculate the average of top exercises for each date
+  // Step 4: Group records by date, keeping only records from top 3 exercises
   const dateMap = {};
   records.forEach((record) => {
-    const date = record.record_date;
-    if (!dateMap[date]) {
-      dateMap[date] = [];
-    }
-    // Only include records from exercises that are in our top 3
-    const exerciseBest = exerciseBestMap[record.exercise_id];
-    if (topExercises.includes(exerciseBest)) {
-      dateMap[date].push(record.estimated_1rm);
+    if (topExerciseIds.includes(record.exercise_id)) {
+      const dateKey = record.record_date;
+      if (!dateMap[dateKey]) {
+        dateMap[dateKey] = {};
+      }
+      // Keep only the best record per exercise per date
+      if (
+        !dateMap[dateKey][record.exercise_id] ||
+        record.estimated_1rm > dateMap[dateKey][record.exercise_id]
+      ) {
+        dateMap[dateKey][record.exercise_id] = record.estimated_1rm;
+      }
     }
   });
 
-  // Step 5: Create final data points with averaged 1RMs per date
+  // Step 5: Calculate average of best records for each date
   return Object.keys(dateMap)
     .sort()
-    .map((date) => ({
-      weight_kg:
-        dateMap[date].reduce((sum, val) => sum + val, 0) / dateMap[date].length,
-      record_date: date,
-    }));
+    .map((date) => {
+      const exerciseValues = Object.values(dateMap[date]);
+      return {
+        avg_weight: exerciseValues.reduce((sum, val) => sum + val, 0) / exerciseValues.length,
+        record_date: date,
+        reps: null // Not applicable for averages
+      };
+    });
 }

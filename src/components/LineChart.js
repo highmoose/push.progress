@@ -38,35 +38,44 @@ export default function LineChart({
 
   // Prepare data
   const processedData = useMemo(() => {
-    const mainData = data.map((d) => {
-      const weight = isAverage
-        ? parseFloat(d.avg_weight)
-        : parseFloat(d.weight_kg);
-      const reps = parseInt(d.reps || TARGET_REPS);
-      const repAdjustment = (reps - TARGET_REPS) * REP_KG_VALUE;
-      return {
-        date: new Date(d.record_date),
-        value: weight + repAdjustment,
-        actualWeight: weight,
-        reps: reps,
-      };
-    });
+    const mainData = data
+      .map((d) => {
+        const weight = isAverage
+          ? parseFloat(d.avg_weight)
+          : parseFloat(d.weight_kg);
+        const reps = parseInt(d.reps || TARGET_REPS);
+        // Only apply rep adjustment for non-average data
+        const repAdjustment = isAverage ? 0 : (reps - TARGET_REPS) * REP_KG_VALUE;
+        return {
+          date: new Date(d.record_date),
+          value: weight + repAdjustment,
+          actualWeight: weight,
+          reps: reps,
+        };
+      })
+      .filter((d) => !isNaN(d.value) && isFinite(d.value)); // Filter out invalid values
 
     const comparisonData = otherData
-      ? otherData.map((d) => {
-          const weight = isAverage
-            ? parseFloat(d.avg_weight)
-            : parseFloat(d.weight_kg);
-          const reps = parseInt(d.reps || TARGET_REPS);
-          const repAdjustment = (reps - TARGET_REPS) * REP_KG_VALUE;
-          return {
-            date: new Date(d.record_date),
-            value: weight + repAdjustment,
-            actualWeight: weight,
-            reps: reps,
-          };
-        })
+      ? otherData
+          .map((d) => {
+            const weight = isAverage
+              ? parseFloat(d.avg_weight)
+              : parseFloat(d.weight_kg);
+            const reps = parseInt(d.reps || TARGET_REPS);
+            // Only apply rep adjustment for non-average data
+            const repAdjustment = isAverage ? 0 : (reps - TARGET_REPS) * REP_KG_VALUE;
+            return {
+              date: new Date(d.record_date),
+              value: weight + repAdjustment,
+              actualWeight: weight,
+              reps: reps,
+            };
+          })
+          .filter((d) => !isNaN(d.value) && isFinite(d.value)) // Filter out invalid values
       : [];
+
+    console.log("Processed mainData:", mainData);
+    console.log("Processed comparisonData:", comparisonData);
 
     return { mainData, comparisonData };
   }, [data, otherData, isAverage]);
