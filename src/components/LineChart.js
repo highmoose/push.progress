@@ -357,13 +357,13 @@ export default function LineChart({
             maxWidth: "150px",
             whiteSpace: "nowrap",
           }}
-          className="rounded-lg bg-[#0a0a0a] px-3 py-2 shadow-[0_-12px_64px_0_rgba(255,255,255,0.12)]"
+          className="rounded-lg bg-[#0a0a0a] px-[9] py-2 shadow-[0_0px_48px_0_rgba(255,255,255,0.12)]"
         >
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-primary" />
               <div className="flex flex-col">
-                <span className="text-[10px] text-white font-medium">
+                <span className="text-[11px] text-white font-medium">
                   {tooltipData.main.actualWeight} KG
                 </span>
                 <span className="text-[10px] text-gray-500 -mt-0.5">
@@ -375,7 +375,7 @@ export default function LineChart({
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-[#686868]" />
                 <div className="flex flex-col">
-                  <span className="text-xs text-gray-400 font-medium">
+                  <span className="text-[11px] text-white font-medium">
                     {tooltipData.comparison.actualWeight} KG
                   </span>
                   <span className="text-[10px] text-gray-500 -mt-0.5">
