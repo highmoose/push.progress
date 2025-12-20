@@ -240,11 +240,13 @@ export default function LineChart({
       // Determine which data point is closer to the mouse cursor
       let closestPoint = mainDataPoint;
       let isComparison = false;
-      
+
       if (comparisonDataPoint) {
         const mainDistance = Math.abs(yScale(getValue(mainDataPoint)) - y);
-        const compDistance = Math.abs(yScale(getValue(comparisonDataPoint)) - y);
-        
+        const compDistance = Math.abs(
+          yScale(getValue(comparisonDataPoint)) - y
+        );
+
         if (compDistance < mainDistance) {
           closestPoint = comparisonDataPoint;
           isComparison = true;
@@ -254,7 +256,7 @@ export default function LineChart({
       setTooltipData({
         main: mainDataPoint,
         comparison: comparisonDataPoint,
-        activePoint: isComparison ? 'comparison' : 'main'
+        activePoint: isComparison ? "comparison" : "main",
       });
       setTooltipLeft(xScale(getDate(closestPoint)));
       setTooltipTop(yScale(getValue(closestPoint)));
