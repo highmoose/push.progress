@@ -114,10 +114,10 @@ export default function HomePage() {
           </div>
           <button
             onClick={handleLogout}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-white transition-colors mt-0.5"
             title="Logout"
           >
-            <i className="bx bx-log-out text-2xl"></i>
+            <i className="bx bx-log-out text-2xl text-gray-500"></i>
           </button>
         </div>
       </header>

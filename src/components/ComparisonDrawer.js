@@ -81,19 +81,24 @@ export default function ComparisonDrawer({ user, onClose }) {
         onClick={(e) => e.stopPropagation()}
         style={{ overscrollBehavior: "contain" }}
       >
-        {/* Handle */}
-        <div className="flex justify-center py-3">
-          <div className="h-1 w-12 rounded-full bg-gray-700" />
-        </div>
-
         {/* Header */}
-        <div className="px-4 pb-4">
-          <h2 className="text-lg font-semibold text-white font-[family-name:var(--font-tektur)]">
-            Compare Progress
-          </h2>
-          <p className="text-xs text-gray-500">
-            {user.username} vs {otherUserName}
-          </p>
+        <div className="px-4 pt-3 pb-4">
+          <div className="flex items-start justify-between mb-1">
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-white font-[family-name:var(--font-tektur)]">
+                Compare Progress
+              </h2>
+              <p className="text-xs text-gray-500">
+                {user.username} vs {otherUserName}
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-white transition-colors -mt-1 ml-2"
+            >
+              <i className="bx bx-x text-2xl"></i>
+            </button>
+          </div>
         </div>
 
         {/* Comparison Type Toggle */}

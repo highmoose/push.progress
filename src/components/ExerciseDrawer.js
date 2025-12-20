@@ -130,19 +130,24 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
         onClick={(e) => e.stopPropagation()}
         style={{ overscrollBehavior: "contain" }}
       >
-        {/* Handle */}
-        <div className="flex justify-center py-3">
-          <div className="h-1 w-12 rounded-full bg-gray-700" />
-        </div>
-
         {/* Header */}
-        <div className="px-4">
-          <h2 className="text-lg font-semibold text-white font-[family-name:var(--font-tektur)]">
-            {exercise.title}
-          </h2>
-          <p className="text-xs text-gray-500 capitalize">
-            {exercise.muscle_group} • {exercise.type}
-          </p>
+        <div className="px-4 pt-3 pb-2">
+          <div className="flex items-start justify-between mb-1">
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-white font-[family-name:var(--font-tektur)]">
+                {exercise.title}
+              </h2>
+              <p className="text-xs text-gray-500 capitalize">
+                {exercise.muscle_group} • {exercise.type}
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-white transition-colors -mt-1 ml-2"
+            >
+              <i className="bx bx-x text-2xl"></i>
+            </button>
+          </div>
         </div>
 
         {/* Date Filter - Only show on chart view */}
@@ -342,9 +347,11 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
               isDisabled={isSubmitting}
               className="w-full"
             >
-              <i className="bx bx-plus text-xl"></i>
+              <i className="bx bx-plus text-lg"></i>
 
-              {isSubmitting ? "Adding..." : "Add Record"}
+              <p className="mt-0.5">
+                {isSubmitting ? "Adding..." : "Add Record"}
+              </p>
             </Button>
           </form>
         </div>
@@ -456,10 +463,10 @@ function EditRecordModal({ record, onClose, onSave }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-white font-[family-name:var(--font-tektur)]">
+          <h2 className="text-lg font-semibold text-white font-[family-name:var(--font-tektur)]">
             Edit Record
           </h2>
-          <p className="text-sm text-gray-500">Update your workout record</p>
+          <p className="text-xs text-gray-500">Update your workout record</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -557,10 +564,10 @@ function DeleteConfirmModal({ record, onClose, onConfirm }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-white font-[family-name:var(--font-tektur)]">
+          <h2 className="text-lg font-semibold text-white font-[family-name:var(--font-tektur)]">
             Delete Record?
           </h2>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-xs text-gray-500 mt-2">
             Are you sure you want to delete this record? This action cannot be
             undone.
           </p>
