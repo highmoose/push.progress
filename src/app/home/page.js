@@ -27,6 +27,7 @@ export default function HomePage() {
   const [filterType, setFilterType] = useState("muscle"); // 'muscle' or 'type'
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [myListOnly, setMyListOnly] = useState(true);
+  const [dateFilter, setDateFilter] = useState("30");
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [showComparison, setShowComparison] = useState(false);
   const [showAddExercise, setShowAddExercise] = useState(false);
@@ -170,42 +171,79 @@ export default function HomePage() {
           </span>
         </Button>
 
-        {/* Specific Filter Dropdown */}
-        <Select
-          selectedKeys={selectedFilter ? [selectedFilter] : ["all"]}
-          defaultSelectedKeys={["all"]}
-          onChange={(e) => setSelectedFilter(e.target.value)}
-          variant="bordered"
-          disallowEmptySelection
-          classNames={{
-            trigger:
-              "border-[#2a2a2a] bg-[#0f0f0f] hover:border-gray-600 data-[hover=true]:border-gray-600",
-            value:
-              "text-gray-200 font-[family-name:var(--font-tektur)] capitalize",
-            popoverContent: "bg-[#1a1a1a] border border-[#2a2a2a]",
-          }}
-        >
-          <SelectItem
-            key="all"
-            value="all"
-            textValue="All Muscle Groups"
-            className="capitalize"
+        {/* Filters Row */}
+        <div className="flex gap-2">
+          {/* Specific Filter Dropdown */}
+          <Select
+            selectedKeys={selectedFilter ? [selectedFilter] : ["all"]}
+            defaultSelectedKeys={["all"]}
+            onChange={(e) => setSelectedFilter(e.target.value)}
+            variant="bordered"
+            disallowEmptySelection
+            classNames={{
+              trigger:
+                "border-[#2a2a2a] bg-[#0f0f0f] hover:border-gray-600 data-[hover=true]:border-gray-600",
+              value:
+                "text-gray-200 font-[family-name:var(--font-tektur)] capitalize",
+              popoverContent: "bg-[#1a1a1a] border border-[#2a2a2a]",
+            }}
           >
-            All {filterType === "muscle" ? "Muscle Groups" : "Types"}
-          </SelectItem>
-          {(filterType === "muscle" ? MUSCLE_GROUPS : EXERCISE_TYPES).map(
-            (option) => (
-              <SelectItem
-                key={option}
-                value={option}
-                className="capitalize"
-                textValue={option.charAt(0).toUpperCase() + option.slice(1)}
-              >
-                {option}
-              </SelectItem>
-            )
-          )}
-        </Select>
+            <SelectItem
+              key="all"
+              value="all"
+              textValue="All Muscle Groups"
+              className="capitalize"
+            >
+              All {filterType === "muscle" ? "Muscle Groups" : "Types"}
+            </SelectItem>
+            {(filterType === "muscle" ? MUSCLE_GROUPS : EXERCISE_TYPES).map(
+              (option) => (
+                <SelectItem
+                  key={option}
+                  value={option}
+                  className="capitalize"
+                  textValue={option.charAt(0).toUpperCase() + option.slice(1)}
+                >
+                  {option}
+                </SelectItem>
+              )
+            )}
+          </Select>
+
+          {/* Date Filter Dropdown */}
+          <Select
+            selectedKeys={[dateFilter]}
+            defaultSelectedKeys={["30"]}
+            onChange={(e) => setDateFilter(e.target.value)}
+            variant="bordered"
+            disallowEmptySelection
+            classNames={{
+              trigger:
+                "border-[#2a2a2a] bg-[#0f0f0f] hover:border-gray-600 data-[hover=true]:border-gray-600",
+              value: "text-gray-200 font-[family-name:var(--font-tektur)]",
+              popoverContent: "bg-[#1a1a1a] border border-[#2a2a2a]",
+            }}
+          >
+            <SelectItem key="7" value="7" textValue="Last 7 Days">
+              Last 7 Days
+            </SelectItem>
+            <SelectItem key="30" value="30" textValue="Last 30 Days">
+              Last 30 Days
+            </SelectItem>
+            <SelectItem key="90" value="90" textValue="Last 90 Days">
+              Last 90 Days
+            </SelectItem>
+            <SelectItem key="180" value="180" textValue="Last 180 Days">
+              Last 180 Days
+            </SelectItem>
+            <SelectItem key="365" value="365" textValue="Last Year">
+              Last Year
+            </SelectItem>
+            <SelectItem key="all" value="all" textValue="All Time">
+              All Time
+            </SelectItem>
+          </Select>
+        </div>
       </div>
 
       {/* Exercise List */}
@@ -228,6 +266,7 @@ export default function HomePage() {
                         key={exercise.id}
                         exercise={exercise}
                         userId={user.id}
+                        dateFilter={dateFilter}
                         onSelect={() => setSelectedExercise(exercise)}
                       />
                     ))}
@@ -242,6 +281,7 @@ export default function HomePage() {
                 key={exercise.id}
                 exercise={exercise}
                 userId={user.id}
+                dateFilter={dateFilter}
                 onSelect={() => setSelectedExercise(exercise)}
               />
             ))}
@@ -312,20 +352,35 @@ export default function HomePage() {
   );
 }
 
-function ExerciseCard({ exercise, onSelect, userId }) {
+function ExerciseCard({ exercise, onSelect, userId, dateFilter }) {
   const [chartData, setChartData] = useState([]);
   const [loadingChart, setLoadingChart] = useState(true);
+  const [progressPercent, setProgressPercent] = useState(null);
 
   useEffect(() => {
     const loadChartData = async () => {
       try {
         setLoadingChart(true);
+        const daysParam = dateFilter === "all" ? "" : `&days=${dateFilter}`;
         const response = await fetch(
-          `/api/records?userId=${userId}&exerciseId=${exercise.id}&days=30`
+          `/api/records?userId=${userId}&exerciseId=${exercise.id}${daysParam}`
         );
         const data = await response.json();
         if (data.success) {
           setChartData(data.data);
+
+          // Calculate progress percentage
+          if (data.data.length >= 2) {
+            const firstRecord = data.data[0];
+            const lastRecord = data.data[data.data.length - 1];
+            const firstWeight = parseFloat(firstRecord.weight_kg);
+            const lastWeight = parseFloat(lastRecord.weight_kg);
+            const percentChange =
+              ((lastWeight - firstWeight) / firstWeight) * 100;
+            setProgressPercent(percentChange);
+          } else {
+            setProgressPercent(null);
+          }
         }
       } catch (error) {
         console.error("Failed to load chart data:", error);
@@ -335,7 +390,7 @@ function ExerciseCard({ exercise, onSelect, userId }) {
     };
 
     loadChartData();
-  }, [exercise.id, userId]);
+  }, [exercise.id, userId, dateFilter]);
 
   return (
     <Card
@@ -355,6 +410,22 @@ function ExerciseCard({ exercise, onSelect, userId }) {
         {!loadingChart && chartData.length > 0 && (
           <div className="absolute w-40 h-10 right-2 opacity-60">
             <LineChart data={chartData} mini={true} />
+          </div>
+        )}
+        {!loadingChart && progressPercent !== null && (
+          <div
+            className={`absolute flex items-center bottom-2 right-2 text-[11px] shadow-[0px_0px_20px_10px_rgba(15,15,15,0.5)] bg-[#0f0f0f]/50 text-zinc-600`}
+          >
+            <div>
+              {progressPercent >= 0 ? (
+                <i className="bx bx-up-arrow-alt text-[14px] leading-none"></i>
+              ) : (
+                <i className="bx bx-down-arrow-alt text-[14px] leading-none"></i>
+              )}
+            </div>
+            <span className="leading-none mb-1">
+              {progressPercent.toFixed(1)}%
+            </span>
           </div>
         )}
       </CardBody>

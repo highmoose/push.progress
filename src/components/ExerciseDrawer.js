@@ -156,7 +156,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
 
         {/* Date Filter - Only show on chart view */}
         {activeTab === "chart" && (
-          <div className="flex justify-center px-4 pb-2 mt-3">
+          <div className="flex justify-center px-4 pb-1.5 mt-1.5">
             <div className="flex gap-2 overflow-x-auto pb-2">
               {Object.entries(DATE_FILTER_LABELS).map(([key, label]) => (
                 <Button
@@ -242,7 +242,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
         {/* Chart View */}
         {activeTab === "chart" && (
           <div className="px-4 pb-6">
-            <div className="rounded-lg bg-[#0f0f0f] min-h-[330px] ">
+            <div className="rounded-lg bg-[#0f0f0f] min-h-[356px] ">
               {loading ? (
                 <div className="flex h-64 items-center justify-center">
                   <p className="text-sm text-gray-500">Loading chart...</p>
@@ -254,12 +254,68 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
                   </p>
                 </div>
               ) : (
-                <LineChart
-                  data={records}
-                  otherData={showOtherUser ? otherUserRecords : null}
-                  userName={user.username}
-                  otherUserName={user.username === "Adam" ? "Cory" : "Adam"}
-                />
+                <>
+                  {/* Stats Section */}
+                  <div className="grid grid-cols-3 pt-3 px-6">
+                    <div className="text-center flex items-center gap-1 mx-auto">
+                      <p className="text-[11px] text-zinc-500">Progress</p>
+                      <p
+                        className={`text-[11px] flex items-center ${(() => {
+                          const firstWeight = parseFloat(records[0].weight_kg);
+                          const lastWeight = parseFloat(
+                            records[records.length - 1].weight_kg
+                          );
+                          const progress =
+                            ((lastWeight - firstWeight) / firstWeight) * 100;
+                          return progress >= 0
+                            ? "text-[#D0F500]"
+                            : "text-red-500";
+                        })()}`}
+                      >
+                        {(() => {
+                          const firstWeight = parseFloat(records[0].weight_kg);
+                          const lastWeight = parseFloat(
+                            records[records.length - 1].weight_kg
+                          );
+                          const progress =
+                            ((lastWeight - firstWeight) / firstWeight) * 100;
+                          return (
+                            <>
+                              {progress >= 0 ? (
+                                <i className="bx bx-up-arrow-alt text-[14px] leading-none pb-[2px]"></i>
+                              ) : (
+                                <i className="bx bx-down-arrow-alt text-[14px] leading-none pb-[2px]"></i>
+                              )}
+                              {progress.toFixed(1)}%
+                            </>
+                          );
+                        })()}
+                      </p>
+                    </div>
+                    <div className="text-center flex items-center gap-1 mx-auto">
+                      <p className="text-[11px] text-zinc-600">Current</p>
+                      <p className="text-[11px] text-white">
+                        {" "}
+                        {parseFloat(records[records.length - 1].weight_kg)} KG
+                      </p>
+                    </div>
+                    <div className="text-center flex items-center gap-1 mx-auto">
+                      <p className="text-[11px] text-zinc-500">Workouts</p>
+                      <p className="text-[11px] text-white">
+                        {" "}
+                        {records.length}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Chart */}
+                  <LineChart
+                    data={records}
+                    otherData={showOtherUser ? otherUserRecords : null}
+                    userName={user.username}
+                    otherUserName={user.username === "Adam" ? "Cory" : "Adam"}
+                  />
+                </>
               )}
             </div>
           </div>
