@@ -201,7 +201,7 @@ export default function LineChart({
   // Handle mouse events for tooltip
   const handleTooltip = useCallback(
     (event) => {
-      const { x } = localPoint(event) || { x: 0 };
+      const { x, y } = localPoint(event) || { x: 0, y: 0 };
       const x0 = xScale.invert(x);
 
       if (processedData.mainData.length === 0) return;
@@ -237,12 +237,27 @@ export default function LineChart({
         }
       }
 
+      // Determine which data point is closer to the mouse cursor
+      let closestPoint = mainDataPoint;
+      let isComparison = false;
+      
+      if (comparisonDataPoint) {
+        const mainDistance = Math.abs(yScale(getValue(mainDataPoint)) - y);
+        const compDistance = Math.abs(yScale(getValue(comparisonDataPoint)) - y);
+        
+        if (compDistance < mainDistance) {
+          closestPoint = comparisonDataPoint;
+          isComparison = true;
+        }
+      }
+
       setTooltipData({
         main: mainDataPoint,
         comparison: comparisonDataPoint,
+        activePoint: isComparison ? 'comparison' : 'main'
       });
-      setTooltipLeft(xScale(getDate(mainDataPoint)));
-      setTooltipTop(yScale(getValue(mainDataPoint)));
+      setTooltipLeft(xScale(getDate(closestPoint)));
+      setTooltipTop(yScale(getValue(closestPoint)));
     },
     [xScale, yScale, processedData, bisectDate]
   );
