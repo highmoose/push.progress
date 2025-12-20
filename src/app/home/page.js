@@ -378,6 +378,8 @@ function ExerciseCard({ exercise, onSelect, userId, dateFilter }) {
             const percentChange =
               ((lastWeight - firstWeight) / firstWeight) * 100;
             setProgressPercent(percentChange);
+          } else if (data.data.length === 1) {
+            setProgressPercent(0);
           } else {
             setProgressPercent(null);
           }
@@ -412,19 +414,19 @@ function ExerciseCard({ exercise, onSelect, userId, dateFilter }) {
             <LineChart data={chartData} mini={true} />
           </div>
         )}
-        {!loadingChart && progressPercent !== null && (
+        {!loadingChart && progressPercent !== null && progressPercent !== 0 && (
           <div
             className={`absolute flex items-center bottom-2 right-2 text-[11px] shadow-[0px_0px_20px_10px_rgba(15,15,15,0.5)] bg-[#0f0f0f]/50 text-zinc-600`}
           >
             <div>
-              {progressPercent >= 0 ? (
+              {progressPercent > 0 ? (
                 <i className="bx bx-up-arrow-alt text-[14px] leading-none"></i>
               ) : (
                 <i className="bx bx-down-arrow-alt text-[14px] leading-none"></i>
               )}
             </div>
             <span className="leading-none mb-1">
-              {progressPercent.toFixed(1)}%{" "}
+              {progressPercent % 1 === 0 ? progressPercent.toFixed(0) : progressPercent.toFixed(1)}%{" "}
             </span>
           </div>
         )}
