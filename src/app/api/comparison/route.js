@@ -70,8 +70,14 @@ async function getExerciseRecords(userId, exerciseId, days) {
 }
 
 async function getMuscleGroupAverage(userId, muscleGroup, days) {
+  // Step 1: Get all records for this muscle group with calculated 1RM
   let sql = `
-    SELECT AVG(er.weight_kg) as avg_weight, er.record_date
+    SELECT 
+      er.exercise_id,
+      er.weight_kg,
+      er.reps,
+      er.record_date,
+      (er.weight_kg * (1 + er.reps / 30)) as estimated_1rm
     FROM exercise_records er
     JOIN exercises e ON er.exercise_id = e.id
     WHERE er.user_id = ? 
@@ -85,7 +91,46 @@ async function getMuscleGroupAverage(userId, muscleGroup, days) {
     params.push(parseInt(days));
   }
 
-  sql += " GROUP BY er.record_date ORDER BY er.record_date ASC";
+  sql += " ORDER BY er.record_date ASC";
 
-  return await query(sql, params);
+  const records = await query(sql, params);
+
+  // Step 2: Group by exercise and find best 1RM per exercise
+  const exerciseBestMap = {};
+  records.forEach(record => {
+    if (!exerciseBestMap[record.exercise_id] || record.estimated_1rm > exerciseBestMap[record.exercise_id]) {
+      exerciseBestMap[record.exercise_id] = record.estimated_1rm;
+    }
+  });
+
+  // Step 3: Get top 3 exercises by best 1RM
+  const topExercises = Object.values(exerciseBestMap)
+    .sort((a, b) => b - a)
+    .slice(0, 3);
+
+  if (topExercises.length === 0) {
+    return [];
+  }
+
+  // Step 4: Calculate the average of top exercises for each date
+  const dateMap = {};
+  records.forEach(record => {
+    const date = record.record_date;
+    if (!dateMap[date]) {
+      dateMap[date] = [];
+    }
+    // Only include records from exercises that are in our top 3
+    const exerciseBest = exerciseBestMap[record.exercise_id];
+    if (topExercises.includes(exerciseBest)) {
+      dateMap[date].push(record.estimated_1rm);
+    }
+  });
+
+  // Step 5: Create final data points with averaged 1RMs per date
+  return Object.keys(dateMap)
+    .sort()
+    .map(date => ({
+      weight_kg: dateMap[date].reduce((sum, val) => sum + val, 0) / dateMap[date].length,
+      record_date: date
+    }));
 }

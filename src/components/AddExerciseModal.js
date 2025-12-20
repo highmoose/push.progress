@@ -11,10 +11,12 @@ export default function AddExerciseModal({ user, onClose, onSuccess }) {
   const [type, setType] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [touched, setTouched] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setTouched(true);
 
     if (!title || !muscleGroup || !type) {
       setError("All fields are required");
@@ -68,7 +70,7 @@ export default function AddExerciseModal({ user, onClose, onSuccess }) {
             placeholder="e.g., Bench Press"
             value={title}
             onValueChange={setTitle}
-            isRequired
+            isInvalid={touched && !title}
           />
 
           {/* Muscle Group */}
@@ -80,7 +82,7 @@ export default function AddExerciseModal({ user, onClose, onSuccess }) {
             onSelectionChange={(keys) =>
               setMuscleGroup(Array.from(keys)[0] || "")
             }
-            isRequired
+            isInvalid={touched && !muscleGroup}
           >
             {MUSCLE_GROUPS.map((group) => (
               <SelectItem key={group} value={group}>
@@ -96,7 +98,7 @@ export default function AddExerciseModal({ user, onClose, onSuccess }) {
             placeholder="Select type..."
             selectedKeys={type ? [type] : []}
             onSelectionChange={(keys) => setType(Array.from(keys)[0] || "")}
-            isRequired
+            isInvalid={touched && !type}
           >
             {EXERCISE_TYPES.map((t) => (
               <SelectItem key={t} value={t}>

@@ -8,10 +8,7 @@ export const MUSCLE_GROUPS = [
   "triceps",
   "forearms",
   "abs",
-  "quads",
-  "hamstrings",
-  "calves",
-  "glutes",
+  "legs",
   "traps",
 ];
 

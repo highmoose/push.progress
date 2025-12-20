@@ -31,6 +31,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
   const [reps, setReps] = useState("");
   const [recordDate, setRecordDate] = useState(today("UTC"));
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [touched, setTouched] = useState(false);
 
   const otherUserId = user.username === "Adam" ? 2 : 1;
 
@@ -70,6 +71,8 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
   const handleAddRecord = async (e) => {
     e.preventDefault();
 
+    setTouched(true);
+
     if (!weightKg || !reps) return;
 
     try {
@@ -85,6 +88,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
       setWeightKg("");
       setReps("");
       setRecordDate(today("UTC"));
+      setTouched(false);
       loadRecords();
       onUpdate();
     } catch (error) {
@@ -311,7 +315,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
                 value={weightKg}
                 onValueChange={setWeightKg}
                 step="0.5"
-                isRequired
+                isInvalid={touched && !weightKg}
                 className="col-span-2"
               />
               <Input
@@ -321,7 +325,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
                 placeholder="0"
                 value={reps}
                 onValueChange={setReps}
-                isRequired
+                isInvalid={touched && !reps}
                 className="col-span-1"
               />
 
@@ -330,9 +334,10 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
                 label="Date"
                 value={recordDate}
                 onChange={setRecordDate}
-                isRequired
                 className="col-span-2"
                 showMonthAndYearPickers
+                granularity="day"
+                locale="en-GB"
                 classNames={{
                   base: "cursor-pointer",
                   inputWrapper: "cursor-pointer",
@@ -479,7 +484,6 @@ function EditRecordModal({ record, onClose, onSave }) {
               value={weightKg}
               onValueChange={setWeightKg}
               step="0.5"
-              isRequired
             />
             <Input
               variant="bordered"
@@ -488,7 +492,6 @@ function EditRecordModal({ record, onClose, onSave }) {
               placeholder="0"
               value={reps}
               onValueChange={setReps}
-              isRequired
             />
           </div>
 
@@ -497,8 +500,9 @@ function EditRecordModal({ record, onClose, onSave }) {
             label="Date"
             value={recordDate}
             onChange={setRecordDate}
-            isRequired
             showMonthAndYearPickers
+            granularity="day"
+            locale="en-GB"
             classNames={{
               base: "cursor-pointer",
               inputWrapper: "cursor-pointer",
