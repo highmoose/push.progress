@@ -50,10 +50,10 @@ export default function AddExerciseModal({ user, onClose, onSuccess }) {
       >
         {/* Header */}
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-white font-[family-name:var(--font-tektur)]">
+          <h2 className="text-lg font-semibold text-white font-[family-name:var(--font-tektur)]">
             Add New Exercise
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-xs text-gray-500">
             Create an exercise that both users can use
           </p>
         </div>

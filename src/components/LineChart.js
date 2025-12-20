@@ -17,13 +17,14 @@ export default function LineChart({
   userName,
   otherUserName,
   isAverage = false,
+  mini = false,
 }) {
   const {
     parentRef,
     width,
     height: parentHeight,
   } = useParentSize({ debounceTime: 150 });
-  const height = 300;
+  const height = mini ? 40 : 300;
 
   const [tooltipData, setTooltipData] = useState(null);
   const [tooltipLeft, setTooltipLeft] = useState(0);
@@ -31,18 +32,40 @@ export default function LineChart({
 
   const bisectDate = bisector((d) => d.date).left;
 
+  // Rep-adjustment constants
+  const TARGET_REPS = 10;
+  const REP_KG_VALUE = 0.25;
+
   // Prepare data
   const processedData = useMemo(() => {
-    const mainData = data.map((d) => ({
-      date: new Date(d.record_date),
-      value: isAverage ? parseFloat(d.avg_weight) : parseFloat(d.weight_kg),
-    }));
+    const mainData = data.map((d) => {
+      const weight = isAverage
+        ? parseFloat(d.avg_weight)
+        : parseFloat(d.weight_kg);
+      const reps = parseInt(d.reps || TARGET_REPS);
+      const repAdjustment = (reps - TARGET_REPS) * REP_KG_VALUE;
+      return {
+        date: new Date(d.record_date),
+        value: weight + repAdjustment,
+        actualWeight: weight,
+        reps: reps,
+      };
+    });
 
     const comparisonData = otherData
-      ? otherData.map((d) => ({
-          date: new Date(d.record_date),
-          value: isAverage ? parseFloat(d.avg_weight) : parseFloat(d.weight_kg),
-        }))
+      ? otherData.map((d) => {
+          const weight = isAverage
+            ? parseFloat(d.avg_weight)
+            : parseFloat(d.weight_kg);
+          const reps = parseInt(d.reps || TARGET_REPS);
+          const repAdjustment = (reps - TARGET_REPS) * REP_KG_VALUE;
+          return {
+            date: new Date(d.record_date),
+            value: weight + repAdjustment,
+            actualWeight: weight,
+            reps: reps,
+          };
+        })
       : [];
 
     return { mainData, comparisonData };
@@ -64,7 +87,9 @@ export default function LineChart({
       ...processedData.comparisonData.map(getValue),
     ];
 
-    const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+    const margin = mini
+      ? { top: 2, right: 2, bottom: 2, left: 2 }
+      : { top: 20, right: 20, bottom: 40, left: 50 };
     const innerWidth = Math.max(width - margin.left - margin.right, 0);
     const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
 
@@ -155,15 +180,41 @@ export default function LineChart({
   return (
     <div ref={parentRef} style={{ width: "100%", position: "relative" }}>
       <svg width={width} height={height}>
+        <defs>
+          <linearGradient
+            id="lineChartGradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
+            <stop offset="0%" stopColor="#D0F500" stopOpacity="0" />
+            <stop offset="95%" stopColor="#D0F500" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#D0F500" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient
+            id="comparisonChartGradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
+            <stop offset="0%" stopColor="#9e9e9e" stopOpacity="0" />
+            <stop offset="95%" stopColor="#9e9e9e" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#9e9e9e" stopOpacity="0" />
+          </linearGradient>
+        </defs>
         <Group left={margin.left} top={margin.top}>
           {/* Grid */}
-          <GridRows
-            scale={yScale}
-            width={innerWidth}
-            strokeDasharray="3,3"
-            stroke="#2a2a2a"
-            strokeOpacity={0.5}
-          />
+          {!mini && (
+            <GridRows
+              scale={yScale}
+              width={innerWidth}
+              strokeDasharray="3,3"
+              stroke="#2a2a2a"
+              strokeOpacity={0.5}
+            />
+          )}
 
           {/* Main Line */}
           {processedData.mainData.length > 0 && (
@@ -171,19 +222,19 @@ export default function LineChart({
               data={processedData.mainData}
               x={(d) => xScale(getDate(d))}
               y={(d) => yScale(getValue(d))}
-              stroke="#D0F500"
-              strokeWidth={4}
+              stroke="url(#lineChartGradient)"
+              strokeWidth={mini ? 2 : 3}
               curve={curveMonotoneX}
             />
           )}
 
           {/* Comparison Line */}
-          {processedData.comparisonData.length > 0 && (
+          {!mini && processedData.comparisonData.length > 0 && (
             <LinePath
               data={processedData.comparisonData}
               x={(d) => xScale(getDate(d))}
               y={(d) => yScale(getValue(d))}
-              stroke="#686868"
+              stroke="url(#comparisonChartGradient)"
               strokeWidth={2.5}
               strokeDasharray="5,5"
               curve={curveMonotoneX}
@@ -191,54 +242,62 @@ export default function LineChart({
           )}
 
           {/* Axes */}
-          <AxisBottom
-            top={innerHeight}
-            scale={xScale}
-            stroke="transparent"
-            tickStroke="#444"
-            numTicks={numXTicks}
-            tickFormat={(date) => {
-              const month = date.toLocaleDateString("en-UK", {
-                month: "short",
-              });
-              const day = date.getDate();
-              return `${month} ${day}`;
-            }}
-            tickLabelProps={() => ({
-              fill: "#888",
-              fontSize: 10,
-              textAnchor: "middle",
-            })}
-          />
+          {!mini && (
+            <>
+              <AxisBottom
+                top={innerHeight}
+                scale={xScale}
+                stroke="transparent"
+                tickStroke="#444"
+                numTicks={numXTicks}
+                tickFormat={(date) => {
+                  const month = date.toLocaleDateString("en-UK", {
+                    month: "short",
+                  });
+                  const day = date.getDate();
+                  return `${month} ${day}`;
+                }}
+                tickLabelProps={() => ({
+                  fill: "#888",
+                  fontSize: 9,
+                  textAnchor: "end",
+                  dx: 2,
+                  dy: 1,
+                })}
+              />
 
-          <AxisLeft
-            scale={yScale}
-            stroke="transparent"
-            tickStroke="transparent"
-            numTicks={4}
-            tickFormat={(value) => `${Math.round(value)} kg`}
-            tickLabelProps={() => ({
-              fill: "#888",
-              fontSize: 10,
-              textAnchor: "end",
-              dx: -4,
-            })}
-          />
+              <AxisLeft
+                scale={yScale}
+                stroke="transparent"
+                tickStroke="transparent"
+                numTicks={4}
+                tickFormat={(value) => `${Math.round(value)} KG`}
+                tickLabelProps={() => ({
+                  fill: "#888",
+                  fontSize: 9,
+                  textAnchor: "end",
+                  dx: -4,
+                })}
+              />
+            </>
+          )}
 
           {/* Interactive overlay */}
-          <rect
-            width={innerWidth}
-            height={innerHeight}
-            fill="transparent"
-            onMouseMove={handleTooltip}
-            onMouseLeave={handleMouseLeave}
-            onTouchStart={handleTooltip}
-            onTouchMove={handleTooltip}
-            style={{ cursor: "crosshair" }}
-          />
+          {!mini && (
+            <rect
+              width={innerWidth}
+              height={innerHeight}
+              fill="transparent"
+              onMouseMove={handleTooltip}
+              onMouseLeave={handleMouseLeave}
+              onTouchStart={handleTooltip}
+              onTouchMove={handleTooltip}
+              style={{ cursor: "crosshair" }}
+            />
+          )}
 
           {/* Tooltip indicator */}
-          {tooltipData && (
+          {!mini && tooltipData && (
             <>
               <line
                 x1={tooltipLeft}
@@ -274,7 +333,7 @@ export default function LineChart({
       </svg>
 
       {/* Tooltip Popover */}
-      {tooltipData && (
+      {!mini && tooltipData && (
         <div
           style={{
             position: "absolute",
@@ -290,16 +349,26 @@ export default function LineChart({
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-primary" />
-              <span className="text-xs text-white font-medium">
-                {getValue(tooltipData.main)} kg
-              </span>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-white font-medium">
+                  {tooltipData.main.actualWeight} KG
+                </span>
+                <span className="text-[10px] text-gray-500 -mt-0.5">
+                  {tooltipData.main.reps} reps
+                </span>
+              </div>
             </div>
             {tooltipData.comparison && (
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-[#686868]" />
-                <span className="text-xs text-gray-400 font-medium">
-                  {getValue(tooltipData.comparison)} kg
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-400 font-medium">
+                    {tooltipData.comparison.actualWeight} KG
+                  </span>
+                  <span className="text-[10px] text-gray-500 -mt-0.5">
+                    {tooltipData.comparison.reps} reps
+                  </span>
+                </div>
               </div>
             )}
             <div className="text-[12px] text-gray-500 mt-1 text-center">
@@ -313,18 +382,20 @@ export default function LineChart({
       )}
 
       {/* Legend */}
-      <div className=" flex items-center justify-center gap-6">
-        <div className="flex items-center gap-2">
-          <div className="h-[3px] w-6 bg-primary" />
-          <span className="text-xs text-gray-400">{userName}</span>
-        </div>
-        {otherData && otherData.length > 0 && (
+      {!mini && (
+        <div className=" flex items-center justify-center gap-6 -mt-2">
           <div className="flex items-center gap-2">
-            <div className="h-0.5 w-6 border-t-2 border-dashed border-[#686868] opacity-60" />
-            <span className="text-xs text-gray-400">{otherUserName}</span>
+            <div className="h-[3px] w-6 bg-primary" />
+            <span className="text-xs text-gray-400">{userName}</span>
           </div>
-        )}
-      </div>
+          {otherData && otherData.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="h-0.5 w-6 border-t-2 border-dashed border-[#686868] opacity-60" />
+              <span className="text-xs text-gray-400">{otherUserName}</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

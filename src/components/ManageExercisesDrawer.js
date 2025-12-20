@@ -132,9 +132,9 @@ export default function ManageExercisesDrawer({ user, onClose, onUpdate }) {
       {/* Drawer */}
       <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-[#0a0a0a] flex flex-col shadow-[-24px_0_64px_0_rgba(255,255,255,0.12)]">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-[#0a0a0a] px-6 py-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-semibold text-white font-[family-name:var(--font-tektur)]">
+        <div className="sticky top-0 z-10 bg-[#0a0a0a] px-4 py-4">
+          <div className="flex items-center justify-between ">
+            <h2 className="text-lg font-semibold text-white font-[family-name:var(--font-tektur)]">
               Manage Exercise List
             </h2>
             <button
@@ -144,7 +144,7 @@ export default function ManageExercisesDrawer({ user, onClose, onUpdate }) {
               <i className="bx bx-x text-2xl"></i>
             </button>
           </div>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-xs text-gray-500 mb-4">
             Select exercises to add to your list
           </p>
           <Button
@@ -152,13 +152,13 @@ export default function ManageExercisesDrawer({ user, onClose, onUpdate }) {
             onPress={() => setShowAddExercise(true)}
             className="w-full font-[family-name:var(--font-tektur)]"
           >
-            <i className="bx bx-plus text-xl"></i>
+            <i className="bx bx-plus text-lg"></i>
             Add New Exercise
           </Button>
         </div>
 
         {/* Exercise List */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-4 py-4">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Spinner size="lg" />
@@ -189,7 +189,7 @@ export default function ManageExercisesDrawer({ user, onClose, onUpdate }) {
                         {exs.map((exercise) => (
                           <label
                             key={exercise.id}
-                            className="flex items-start gap-3 p-3 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] hover:border-gray-600 transition-colors cursor-pointer"
+                            className="flex items-start gap-3 p-3 rounded-lg bg-[#0f0f0f] hover:border-gray-600 transition-colors cursor-pointer"
                           >
                             <Checkbox
                               isSelected={selectedExercises.has(exercise.id)}
@@ -227,7 +227,7 @@ export default function ManageExercisesDrawer({ user, onClose, onUpdate }) {
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-[#0a0a0a] px-6 py-4">
+        <div className="sticky bottom-0 bg-[#0a0a0a] px-4 py-4">
           <div className="flex gap-3">
             <Button
               variant="bordered"

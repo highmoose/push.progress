@@ -16,6 +16,7 @@ import ExerciseDrawer from "@/components/ExerciseDrawer";
 import ComparisonDrawer from "@/components/ComparisonDrawer";
 import AddExerciseModal from "@/components/AddExerciseModal";
 import ManageExercisesDrawer from "@/components/ManageExercisesDrawer";
+import LineChart from "@/components/LineChart";
 import Image from "next/image";
 
 export default function HomePage() {
@@ -122,7 +123,7 @@ export default function HomePage() {
       </header>
 
       {/* Filters */}
-      <div className="sticky top-[73px] z-30 border-b border-[#2a2a2a] bg-[#0a0a0a]/95 backdrop-blur-sm px-6 py-4 space-y-3">
+      <div className="sticky top-[62px] z-30 border-b border-[#2a2a2a] bg-[#0a0a0a]/95 backdrop-blur-sm px-4 py-4 space-y-3">
         {/* Filter Type Toggle */}
         <div className="flex gap-2">
           <Button
@@ -208,7 +209,7 @@ export default function HomePage() {
       </div>
 
       {/* Exercise List */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 pb-24">
+      <div className="flex-1 overflow-y-auto px-4 py-6 pb-24">
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <p className="text-sm text-gray-500">Loading exercises...</p>
@@ -226,6 +227,7 @@ export default function HomePage() {
                       <ExerciseCard
                         key={exercise.id}
                         exercise={exercise}
+                        userId={user.id}
                         onSelect={() => setSelectedExercise(exercise)}
                       />
                     ))}
@@ -239,6 +241,7 @@ export default function HomePage() {
               <ExerciseCard
                 key={exercise.id}
                 exercise={exercise}
+                userId={user.id}
                 onSelect={() => setSelectedExercise(exercise)}
               />
             ))}
@@ -261,7 +264,7 @@ export default function HomePage() {
       </div>
 
       {/* Floating Action Buttons */}
-      <div className="fixed bottom-6 right-6 flex flex-col gap-3">
+      <div className="fixed bottom-6 right-4 flex flex-col gap-3">
         <Button
           isIconOnly
           onPress={() => setShowComparison(true)}
@@ -309,22 +312,47 @@ export default function HomePage() {
   );
 }
 
-function ExerciseCard({ exercise, onSelect }) {
+function ExerciseCard({ exercise, onSelect, userId }) {
+  const [chartData, setChartData] = useState([]);
+  const [loadingChart, setLoadingChart] = useState(true);
+
+  useEffect(() => {
+    const loadChartData = async () => {
+      try {
+        setLoadingChart(true);
+        const response = await fetch(
+          `/api/records?userId=${userId}&exerciseId=${exercise.id}&days=30`
+        );
+        const data = await response.json();
+        if (data.success) {
+          setChartData(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to load chart data:", error);
+      } finally {
+        setLoadingChart(false);
+      }
+    };
+
+    loadChartData();
+  }, [exercise.id, userId]);
+
   return (
-    <Card
-      isPressable
-      onPress={onSelect}
-      className="bg-[#0f0f0f] border border-[#2a2a2a] w-full"
-    >
-      <CardBody className="flex-row items-center gap-3 px-4 py-3">
+    <Card isPressable onPress={onSelect} className="bg-[#0f0f0f]  w-full ">
+      <CardBody className="relative flex-row items-center gap-3 px-4 py-3">
         <div className="flex-1">
-          <h3 className="font-medium text-white font-[family-name:var(--font-tektur)]">
+          <h3 className="font-medium text-[15px] text-white font-[family-name:var(--font-tektur)]">
             {exercise.title}
           </h3>
           <p className="text-xs text-gray-500 capitalize">
             {exercise.muscle_group} • {exercise.type}
           </p>
         </div>
+        {!loadingChart && chartData.length > 0 && (
+          <div className="absolute w-40 h-10 right-2">
+            <LineChart data={chartData} mini={true} />
+          </div>
+        )}
       </CardBody>
     </Card>
   );

@@ -4,7 +4,7 @@
   "description": "Track your workout progress and compete with friends",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
+  "background_color": "#d0f500",
   "theme_color": "#d0f500",
   "orientation": "portrait",
   "icons": [
@@ -23,6 +23,36 @@
     {
       "src": "/images/icon/icon-512-maskable.png",
       "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/splash/splash-640x1136.png",
+      "sizes": "640x1136",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/splash/splash-750x1334.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/splash/splash-1242x2208.png",
+      "sizes": "1242x2208",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/splash/splash-1125x2436.png",
+      "sizes": "1125x2436",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/splash/splash-1242x2688.png",
+      "sizes": "1242x2688",
       "type": "image/png",
       "purpose": "any"
     }

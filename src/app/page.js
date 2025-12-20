@@ -52,7 +52,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0a0a0a] font-[family-name:var(--font-roboto)]">
+    <div className="flex min-h-full flex-col bg-[#0a0a0a] font-[family-name:var(--font-roboto)]">
       {/* Hero Section - Top */}
       <div className="relative flex flex-1 flex-col items-start justify-center bg-gradient-to-br from-[#1a1a1a] via-[#0f0f0f] to-[#0a0a0a] px-8 py-16">
         <div className="mb-4">
@@ -69,7 +69,7 @@ export default function Home() {
             </span>
           </div> */}
         </div>
-        <h1 className="mb-6 max-w-md text-[36px] font-light leading-tight text-white font-[family-name:var(--font-tektur)]">
+        <h1 className="mb-6 max-w-md text-4xl font-light leading-tight text-white font-[family-name:var(--font-tektur)]">
           Track. Compare. Improve. Your Fitness Journey Starts Here.
         </h1>
         <p className=" text-xs text-gray-500">

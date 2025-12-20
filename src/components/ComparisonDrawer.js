@@ -74,10 +74,12 @@ export default function ComparisonDrawer({ user, onClose }) {
     <div
       className="fixed inset-0 z-50 flex items-end bg-black/50"
       onClick={onClose}
+      style={{ overscrollBehavior: 'none' }}
     >
       <div
         className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-[#0a0a0a] pb-6 shadow-[0_-24px_64px_0_rgba(255,255,255,0.12)]"
         onClick={(e) => e.stopPropagation()}
+        style={{ overscrollBehavior: 'contain' }}
       >
         {/* Handle */}
         <div className="flex justify-center py-3">
@@ -85,17 +87,17 @@ export default function ComparisonDrawer({ user, onClose }) {
         </div>
 
         {/* Header */}
-        <div className="px-6 pb-4">
-          <h2 className="text-2xl font-semibold text-white font-[family-name:var(--font-tektur)]">
+        <div className="px-4 pb-4">
+          <h2 className="text-lg font-semibold text-white font-[family-name:var(--font-tektur)]">
             Compare Progress
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-xs text-gray-500">
             {user.username} vs {otherUserName}
           </p>
         </div>
 
         {/* Comparison Type Toggle */}
-        <div className="px-6 pb-4">
+        <div className="px-4 pb-4">
           <div className="flex gap-2">
             <Button
               variant={comparisonType === "exercise" ? "solid" : "bordered"}
@@ -115,7 +117,7 @@ export default function ComparisonDrawer({ user, onClose }) {
         </div>
 
         {/* Selection */}
-        <div className="px-6 pb-4">
+        <div className="px-4 pb-4">
           {comparisonType === "exercise" ? (
             <Select
               label="Select Exercise"
@@ -151,15 +153,15 @@ export default function ComparisonDrawer({ user, onClose }) {
         </div>
 
         {/* Date Filter */}
-        <div className="px-6 pb-4">
-          <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="px-4 pb-2">
+          <div className="flex justify-center gap-2 overflow-x-auto pb-2">
             {Object.entries(DATE_FILTER_LABELS).map(([key, label]) => (
               <Button
                 key={key}
                 size="sm"
                 variant={dateFilter === key ? "solid" : "bordered"}
                 onPress={() => setDateFilter(key)}
-                className={`whitespace-nowrap  font-[family-name:var(--font-tektur)] ${
+                className={`whitespace-nowrap  font-[family-name:var(--font-tektur)] text-[11px] ${
                   dateFilter === key
                     ? "bg-[#1a1a1a] border-gray-600 rounded-full"
                     : "border-[#2a2a2a] text-gray-400 rounded-full"
@@ -172,8 +174,8 @@ export default function ComparisonDrawer({ user, onClose }) {
         </div>
 
         {/* Comparison Chart */}
-        <div className="px-6">
-          <div className="rounded-lg bg-[#0f0f0f] p-4 pb-6">
+        <div className="px-4">
+          <div className="rounded-lg bg-[#0f0f0f] pb-5">
             {loading ? (
               <div className="flex h-64 items-center justify-center">
                 <p className="text-sm text-gray-500">Loading comparison...</p>
@@ -209,7 +211,7 @@ export default function ComparisonDrawer({ user, onClose }) {
             (comparisonData.user1.length > 0 ||
               comparisonData.user2.length > 0) && (
               <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-lg  bg-[#0f0f0f] p-3">
+                <div className="rounded-lg  bg-[#0f0f0f] px-3 py-2">
                   <p className="text-xs text-gray-500">
                     {user.username} Records
                   </p>
@@ -217,7 +219,7 @@ export default function ComparisonDrawer({ user, onClose }) {
                     {comparisonData.user1.length}
                   </p>
                 </div>
-                <div className="rounded-lg  bg-[#0f0f0f] p-3">
+                <div className="rounded-lg  bg-[#0f0f0f] px-3 py-2">
                   <p className="text-xs text-gray-500">
                     {otherUserName} Records
                   </p>

@@ -123,10 +123,12 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
     <div
       className="fixed inset-0 z-50 flex items-end bg-black/50"
       onClick={onClose}
+      style={{ overscrollBehavior: 'none' }}
     >
       <div
         className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-[#0a0a0a] pb-6 shadow-[0_-24px_64px_0_rgba(255,255,255,0.12)]"
         onClick={(e) => e.stopPropagation()}
+        style={{ overscrollBehavior: 'contain' }}
       >
         {/* Handle */}
         <div className="flex justify-center py-3">
@@ -134,76 +136,104 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
         </div>
 
         {/* Header */}
-        <div className="px-6 pb-4">
-          <h2 className="text-2xl font-semibold text-white font-[family-name:var(--font-tektur)]">
+        <div className="px-4">
+          <h2 className="text-lg font-semibold text-white font-[family-name:var(--font-tektur)]">
             {exercise.title}
           </h2>
-          <p className="text-sm text-gray-500 capitalize">
+          <p className="text-xs text-gray-500 capitalize">
             {exercise.muscle_group} • {exercise.type}
           </p>
         </div>
 
-        {/* Date Filter */}
-        <div className="px-6 pb-4">
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {Object.entries(DATE_FILTER_LABELS).map(([key, label]) => (
-              <Button
-                key={key}
-                size="sm"
-                variant={dateFilter === key ? "solid" : "bordered"}
-                onPress={() => setDateFilter(key)}
-                className={`whitespace-nowrap  font-[family-name:var(--font-tektur)] ${
-                  dateFilter === key
-                    ? "bg-[#1a1a1a] border-gray-600 rounded-full"
-                    : "border-[#2a2a2a] text-gray-400 rounded-full"
-                }`}
-              >
-                {label}
-              </Button>
-            ))}
+        {/* Date Filter - Only show on chart view */}
+        {activeTab === "chart" && (
+          <div className="flex justify-center px-4 pb-2 mt-3">
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {Object.entries(DATE_FILTER_LABELS).map(([key, label]) => (
+                <Button
+                  key={key}
+                  size="sm"
+                  variant={dateFilter === key ? "solid" : "bordered"}
+                  onPress={() => setDateFilter(key)}
+                  className={`whitespace-nowrap font-[family-name:var(--font-tektur)] text-[11px] ${
+                    dateFilter === key
+                      ? "bg-[#1a1a1a] border-gray-600 rounded-full"
+                      : "border-[#2a2a2a] text-gray-400 rounded-full"
+                  }`}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Compare Toggle and Tabs */}
-        <div className="px-6 pb-4 flex items-center justify-between">
-          <div
-            className={`flex items-center gap-2 transition-opacity ${
-              activeTab === "list" ? "opacity-30 pointer-events-none" : ""
-            }`}
-          >
-            <span className="text-sm text-gray-400">
-              Compare with {user.username === "Adam" ? "Cory" : "Adam"}
-            </span>
-            <Switch
-              isSelected={showOtherUser}
-              onValueChange={setShowOtherUser}
+        {/* Compare Toggle and Tabs - Only show on chart view */}
+        {activeTab === "chart" && (
+          <div className="px-4 pb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400">
+                Compare with {user.username === "Adam" ? "Cory" : "Adam"}
+              </span>
+              <Switch
+                isSelected={showOtherUser}
+                onValueChange={setShowOtherUser}
+                size="sm"
+              />
+            </div>
+            <Tabs
+              selectedKey={activeTab}
+              onSelectionChange={setActiveTab}
               size="sm"
-              isDisabled={activeTab === "list"}
-            />
+              color="primary"
+              variant="solid"
+              classNames={{
+                tabList: "bg-[#0f0f0f] p-1 gap-1",
+                tab: "px-3 py-1.5",
+              }}
+            >
+              <Tab
+                key="chart"
+                title={<i className="bx bx-line-chart text-lg"></i>}
+              />
+              <Tab
+                key="list"
+                title={<i className="bx bx-list-ul text-lg"></i>}
+              />
+            </Tabs>
           </div>
-          <Tabs
-            selectedKey={activeTab}
-            onSelectionChange={setActiveTab}
-            size="sm"
-            color="primary"
-            variant="solid"
-            classNames={{
-              tabList: "bg-[#0f0f0f] p-1 gap-1",
-              tab: "px-3 py-1.5",
-            }}
-          >
-            <Tab
-              key="chart"
-              title={<i className="bx bx-line-chart text-lg"></i>}
-            />
-            <Tab key="list" title={<i className="bx bx-list-ul text-lg"></i>} />
-          </Tabs>
-        </div>
+        )}
+
+        {/* Tabs only - Show on list view */}
+        {activeTab === "list" && (
+          <div className="px-4 pb-4 -mt-3 flex justify-end">
+            <Tabs
+              selectedKey={activeTab}
+              onSelectionChange={setActiveTab}
+              size="sm"
+              color="primary"
+              variant="solid"
+              classNames={{
+                tabList: "bg-[#0f0f0f] p-1 gap-1",
+                tab: "px-3 py-1.5",
+              }}
+            >
+              <Tab
+                key="chart"
+                title={<i className="bx bx-line-chart text-lg"></i>}
+              />
+              <Tab
+                key="list"
+                title={<i className="bx bx-list-ul text-lg"></i>}
+              />
+            </Tabs>
+          </div>
+        )}
 
         {/* Chart View */}
         {activeTab === "chart" && (
-          <div className="px-6 pb-6">
-            <div className="rounded-lg bg-[#0f0f0f] min-h-[364px] pt-4 px-2">
+          <div className="px-4 pb-6">
+            <div className="rounded-lg bg-[#0f0f0f] min-h-[330px] ">
               {loading ? (
                 <div className="flex h-64 items-center justify-center">
                   <p className="text-sm text-gray-500">Loading chart...</p>
@@ -228,14 +258,14 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
 
         {/* List View */}
         {activeTab === "list" && (
-          <div className="px-6 pb-6">
-            <div className="rounded-lg bg-[#0f0f0f] p-2 max-h-[364px] overflow-y-auto">
+          <div className="px-4 pb-6">
+            <div className=" max-h-[364px] overflow-y-auto">
               {loading ? (
                 <div className="flex h-full items-center justify-center">
                   <p className="text-sm text-gray-500">Loading records...</p>
                 </div>
               ) : records.length === 0 ? (
-                <div className="flex h-[330px] items-center justify-center">
+                <div className="flex h-[150px] items-center justify-center">
                   <p className="text-sm text-gray-500">
                     No records yet. Add your first record below!
                   </p>
@@ -262,8 +292,8 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
         )}
 
         {/* Add Record Form */}
-        <div className="px-6">
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-500">
+        <div className="px-4">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
             Add New Record
           </h3>
           <form onSubmit={handleAddRecord} className="space-y-3">
@@ -352,12 +382,12 @@ function RecordItem({ record, onEdit, onDelete }) {
   };
 
   return (
-    <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-[#1a1a1a] hover:bg-[#252525] transition-colors">
+    <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-[#0f0f0f] hover:bg-[#1a1a1a] transition-colors">
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <div>
-            <p className="text-white font-medium font-[family-name:var(--font-tektur)]">
-              <span className="text-primary">{record.weight_kg} kg</span> ×{" "}
+            <p className="text-white font-medium tracking-wide font-[family-name:var(--font-tektur)]">
+              <span className="text-primary">{record.weight_kg} KG</span> ×{" "}
               {record.reps}
             </p>
             <p className="text-xs text-gray-500">
