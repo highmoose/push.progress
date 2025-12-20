@@ -1,140 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Generate Splash Screens</title>
     <style>
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            padding: 20px;
-            background: #0a0a0a;
-            color: white;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        canvas {
-            border: 2px solid #d0f500;
-            margin: 10px 0;
-            display: block;
-        }
-        button {
-            background: #d0f500;
-            color: black;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 10px 0;
-        }
-        button:hover {
-            opacity: 0.8;
-        }
-        .info {
-            background: #1a1a1a;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .download-all {
-            background: #4CAF50;
-            color: white;
-        }
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        padding: 20px;
+        background: #0a0a0a;
+        color: white;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      canvas {
+        border: 2px solid #d0f500;
+        margin: 10px 0;
+        display: block;
+      }
+      button {
+        background: #d0f500;
+        color: black;
+        border: none;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 10px 0;
+      }
+      button:hover {
+        opacity: 0.8;
+      }
+      .info {
+        background: #1a1a1a;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      .download-all {
+        background: #4caf50;
+        color: white;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>Push Progress - Splash Screen Generator</h1>
-        <div class="info">
-            <p>This tool will generate splash screen images with the primary color (#d0f500) background and your black logo centered.</p>
-            <p><strong>Instructions:</strong></p>
-            <ol>
-                <li>Click "Generate All Splash Screens"</li>
-                <li>Download each image using the download buttons</li>
-                <li>Place them in: <code>public/images/splash/</code></li>
-            </ol>
-        </div>
-        
-        <button class="download-all" onclick="generateAllSplashScreens()">Generate All Splash Screens</button>
-        
-        <div id="output"></div>
+      <h1>Push Progress - Splash Screen Generator</h1>
+      <div class="info">
+        <p>
+          This tool will generate splash screen images with the primary color
+          (#d0f500) background and your black logo centered.
+        </p>
+        <p><strong>Instructions:</strong></p>
+        <ol>
+          <li>Click "Generate All Splash Screens"</li>
+          <li>Download each image using the download buttons</li>
+          <li>Place them in: <code>public/images/splash/</code></li>
+        </ol>
+      </div>
+
+      <button class="download-all" onclick="generateAllSplashScreens()">
+        Generate All Splash Screens
+      </button>
+
+      <div id="output"></div>
     </div>
 
     <script>
-        const sizes = [
-            { width: 640, height: 1136, name: 'splash-640x1136.png' },
-            { width: 750, height: 1334, name: 'splash-750x1334.png' },
-            { width: 1242, height: 2208, name: 'splash-1242x2208.png' },
-            { width: 1125, height: 2436, name: 'splash-1125x2436.png' },
-            { width: 1242, height: 2688, name: 'splash-1242x2688.png' }
-        ];
+      const sizes = [
+        { width: 640, height: 1136, name: "splash-640x1136.png" },
+        { width: 750, height: 1334, name: "splash-750x1334.png" },
+        { width: 1242, height: 2208, name: "splash-1242x2208.png" },
+        { width: 1125, height: 2436, name: "splash-1125x2436.png" },
+        { width: 1242, height: 2688, name: "splash-1242x2688.png" },
+      ];
 
-        const logoSVG = `
+      const logoSVG = `
             <svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 427.05 414">
               <path d="M427,0c.76.73-7.06,17.08-8.14,19.36-13.62,28.74-28.26,57.61-43.83,85.17C254.4,207.96,135.41,313.27,12.49,414l-2.46-1.49,83-171.98,184.55-159.45c2.5-2.7,2.28-7.4-2.03-7.13-43.95-.57-88.22,1.4-131.99-1.01L0,0h427Z" fill="#000000"/>
             </svg>
         `;
 
-        function generateSplashScreen(width, height, name) {
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
+      function generateSplashScreen(width, height, name) {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
 
-            // Fill with primary color
-            ctx.fillStyle = '#d0f500';
-            ctx.fillRect(0, 0, width, height);
+        // Fill with primary color
+        ctx.fillStyle = "#d0f500";
+        ctx.fillRect(0, 0, width, height);
 
-            // Create image from SVG
-            const img = new Image();
-            const svgBlob = new Blob([logoSVG], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(svgBlob);
+        // Create image from SVG
+        const img = new Image();
+        const svgBlob = new Blob([logoSVG], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(svgBlob);
 
-            img.onload = function() {
-                // Calculate logo size (30% of screen height, max 300px)
-                const logoSize = Math.min(height * 0.3, 300);
-                const x = (width - logoSize) / 2;
-                const y = (height - logoSize) / 2;
+        img.onload = function () {
+          // Calculate logo size (30% of screen height, max 300px)
+          const logoSize = Math.min(height * 0.3, 300);
+          const x = (width - logoSize) / 2;
+          const y = (height - logoSize) / 2;
 
-                ctx.drawImage(img, x, y, logoSize, logoSize);
-                URL.revokeObjectURL(url);
+          ctx.drawImage(img, x, y, logoSize, logoSize);
+          URL.revokeObjectURL(url);
 
-                // Create download button
-                const container = document.createElement('div');
-                container.style.marginBottom = '20px';
-                
-                const title = document.createElement('h3');
-                title.textContent = `${width}x${height}`;
-                container.appendChild(title);
-                
-                container.appendChild(canvas);
-                
-                const downloadBtn = document.createElement('button');
-                downloadBtn.textContent = `Download ${name}`;
-                downloadBtn.onclick = function() {
-                    const link = document.createElement('a');
-                    link.download = name;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                };
-                container.appendChild(downloadBtn);
-                
-                document.getElementById('output').appendChild(container);
-            };
+          // Create download button
+          const container = document.createElement("div");
+          container.style.marginBottom = "20px";
 
-            img.src = url;
-        }
+          const title = document.createElement("h3");
+          title.textContent = `${width}x${height}`;
+          container.appendChild(title);
 
-        function generateAllSplashScreens() {
-            document.getElementById('output').innerHTML = '';
-            sizes.forEach(size => {
-                generateSplashScreen(size.width, size.height, size.name);
-            });
-        }
+          container.appendChild(canvas);
+
+          const downloadBtn = document.createElement("button");
+          downloadBtn.textContent = `Download ${name}`;
+          downloadBtn.onclick = function () {
+            const link = document.createElement("a");
+            link.download = name;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+          };
+          container.appendChild(downloadBtn);
+
+          document.getElementById("output").appendChild(container);
+        };
+
+        img.src = url;
+      }
+
+      function generateAllSplashScreens() {
+        document.getElementById("output").innerHTML = "";
+        sizes.forEach((size) => {
+          generateSplashScreen(size.width, size.height, size.name);
+        });
+      }
     </script>
-</body>
+  </body>
 </html>

@@ -105,12 +105,12 @@ export default function ManageExercisesDrawer({ user, onClose, onUpdate }) {
     <div
       className="fixed inset-0 z-50 flex items-end bg-black/50"
       onClick={onClose}
-      style={{ overscrollBehavior: 'none' }}
+      style={{ overscrollBehavior: "none" }}
     >
       <div
         className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-[#0a0a0a] pb-6 shadow-[0_-24px_64px_0_rgba(255,255,255,0.12)]"
         onClick={(e) => e.stopPropagation()}
-        style={{ overscrollBehavior: 'contain' }}
+        style={{ overscrollBehavior: "contain" }}
       >
         {/* Handle */}
         <div className="flex justify-center py-3">
