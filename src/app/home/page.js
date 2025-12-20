@@ -426,7 +426,10 @@ function ExerciseCard({ exercise, onSelect, userId, dateFilter }) {
               )}
             </div>
             <span className="leading-none mb-1">
-              {progressPercent % 1 === 0 ? progressPercent.toFixed(0) : progressPercent.toFixed(1)}%{" "}
+              {progressPercent % 1 === 0
+                ? progressPercent.toFixed(0)
+                : progressPercent.toFixed(1)}
+              %{" "}
             </span>
           </div>
         )}
