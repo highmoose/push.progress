@@ -45,7 +45,9 @@ export default function LineChart({
           : parseFloat(d.weight_kg);
         const reps = parseInt(d.reps || TARGET_REPS);
         // Only apply rep adjustment for non-average data
-        const repAdjustment = isAverage ? 0 : (reps - TARGET_REPS) * REP_KG_VALUE;
+        const repAdjustment = isAverage
+          ? 0
+          : (reps - TARGET_REPS) * REP_KG_VALUE;
         return {
           date: new Date(d.record_date),
           value: weight + repAdjustment,
@@ -63,7 +65,9 @@ export default function LineChart({
               : parseFloat(d.weight_kg);
             const reps = parseInt(d.reps || TARGET_REPS);
             // Only apply rep adjustment for non-average data
-            const repAdjustment = isAverage ? 0 : (reps - TARGET_REPS) * REP_KG_VALUE;
+            const repAdjustment = isAverage
+              ? 0
+              : (reps - TARGET_REPS) * REP_KG_VALUE;
             return {
               date: new Date(d.record_date),
               value: weight + repAdjustment,

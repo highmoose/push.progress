@@ -144,9 +144,11 @@ async function getMuscleGroupAverage(userId, muscleGroup, days) {
     .map((date) => {
       const exerciseValues = Object.values(dateMap[date]);
       return {
-        avg_weight: exerciseValues.reduce((sum, val) => sum + val, 0) / exerciseValues.length,
+        avg_weight:
+          exerciseValues.reduce((sum, val) => sum + val, 0) /
+          exerciseValues.length,
         record_date: date,
-        reps: null // Not applicable for averages
+        reps: null, // Not applicable for averages
       };
     });
 }
