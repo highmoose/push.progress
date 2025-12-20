@@ -73,7 +73,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
 
     setTouched(true);
 
-    if (!weightKg || !reps) return;
+    if (weightKg === "" || reps === "") return;
 
     try {
       setIsSubmitting(true);
@@ -315,7 +315,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
                 value={weightKg}
                 onValueChange={setWeightKg}
                 step="0.5"
-                isInvalid={touched && !weightKg}
+                isInvalid={touched && weightKg === ""}
                 className="col-span-2"
               />
               <Input
@@ -325,7 +325,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
                 placeholder="0"
                 value={reps}
                 onValueChange={setReps}
-                isInvalid={touched && !reps}
+                isInvalid={touched && reps === ""}
                 className="col-span-1"
               />
 
