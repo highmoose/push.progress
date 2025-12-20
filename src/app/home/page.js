@@ -96,7 +96,7 @@ export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col bg-[#0a0a0a] font-[family-name:var(--font-roboto)]">
       {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-[#2a2a2a] bg-[#0a0a0a]/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-40  border-[#2a2a2a] bg-[#0a0a0a]/95 backdrop-blur-sm">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             <Image
