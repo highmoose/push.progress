@@ -238,6 +238,7 @@ export default function LineChart({
               stroke="url(#lineChartGradient)"
               strokeWidth={mini ? 2 : 3}
               curve={curveMonotoneX}
+              className={mini ? "animate-draw-line-slow" : "animate-draw-line"}
             />
           )}
 
@@ -249,8 +250,8 @@ export default function LineChart({
               y={(d) => yScale(getValue(d))}
               stroke="url(#comparisonChartGradient)"
               strokeWidth={2.5}
-              strokeDasharray="5,5"
               curve={curveMonotoneX}
+              className="animate-draw-line-dashed"
             />
           )}
 
