@@ -388,7 +388,7 @@ function RecordItem({ record, onEdit, onDelete }) {
           <div>
             <p className="text-white font-medium tracking-wide font-[family-name:var(--font-tektur)]">
               <span className="text-primary">{record.weight_kg} KG</span> ×{" "}
-              {record.reps}
+              {record.reps} Reps
             </p>
             <p className="text-xs text-gray-500">
               {formatDate(record.record_date)}
@@ -396,7 +396,7 @@ function RecordItem({ record, onEdit, onDelete }) {
           </div>
         </div>
       </div>
-      <div className="flex gap-1">
+      <div className="flex ">
         <Button
           isIconOnly
           size="sm"
@@ -404,7 +404,7 @@ function RecordItem({ record, onEdit, onDelete }) {
           onPress={onEdit}
           className="text-gray-400 hover:text-white"
         >
-          <i className="bx bx-pencil text-[18px]"></i>
+          <i className="bx bx-pencil text-[16px]"></i>
         </Button>
         <Button
           isIconOnly
@@ -413,7 +413,7 @@ function RecordItem({ record, onEdit, onDelete }) {
           onPress={onDelete}
           className="text-gray-400 hover:text-red-400"
         >
-          <i className="bx bx-trash text-[18px]"></i>
+          <i className="bx bx-trash text-[16px]"></i>
         </Button>
       </div>
     </div>
@@ -568,8 +568,8 @@ function DeleteConfirmModal({ record, onClose, onConfirm }) {
 
         <div className="mb-6 p-3 rounded-lg bg-[#0f0f0f] border border-[#2a2a2a]">
           <p className="text-white font-medium font-[family-name:var(--font-tektur)]">
-            <span className="text-primary">{record.weight_kg} kg</span> ×{" "}
-            {record.reps}
+            <span className="text-primary">{record.weight_kg} KG</span> ×{" "}
+            {record.reps} Reps
           </p>
           <p className="text-xs text-gray-500">
             {formatDate(record.record_date)}

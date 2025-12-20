@@ -123,7 +123,7 @@ export default function HomePage() {
       </header>
 
       {/* Filters */}
-      <div className="sticky top-[62px] z-30 border-b border-[#2a2a2a] bg-[#0a0a0a]/95 backdrop-blur-sm px-4 py-4 space-y-3">
+      <div className="sticky top-[60px] z-30 border-b border-[#2a2a2a] bg-[#0a0a0a]/60 backdrop-blur-lg px-4 py-4 space-y-3">
         {/* Filter Type Toggle */}
         <div className="flex gap-2">
           <Button
@@ -338,7 +338,11 @@ function ExerciseCard({ exercise, onSelect, userId }) {
   }, [exercise.id, userId]);
 
   return (
-    <Card isPressable onPress={onSelect} className="bg-[#0f0f0f]  w-full ">
+    <Card
+      isPressable
+      onPress={onSelect}
+      className="bg-[#0f0f0f] w-full border-none shadow-none"
+    >
       <CardBody className="relative flex-row items-center gap-3 px-4 py-3">
         <div className="flex-1">
           <h3 className="font-medium text-[15px] text-white font-[family-name:var(--font-tektur)]">
@@ -349,7 +353,7 @@ function ExerciseCard({ exercise, onSelect, userId }) {
           </p>
         </div>
         {!loadingChart && chartData.length > 0 && (
-          <div className="absolute w-40 h-10 right-2">
+          <div className="absolute w-40 h-10 right-2 opacity-60">
             <LineChart data={chartData} mini={true} />
           </div>
         )}
