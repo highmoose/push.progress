@@ -38,6 +38,8 @@ export default function LineChart({
 
   // Prepare data
   const processedData = useMemo(() => {
+    console.log("Raw data received:", data);
+
     const mainData = data
       .map((d) => {
         const weight = isAverage
@@ -56,6 +58,28 @@ export default function LineChart({
         };
       })
       .filter((d) => !isNaN(d.value) && isFinite(d.value)); // Filter out invalid values
+
+    console.log("After processing, mainData length:", mainData.length);
+
+    // Duplicate single record to create a horizontal line
+    let mainDataForChart = mainData;
+    let isSingleRecord = false;
+    if (mainData.length === 1) {
+      console.log("Single record detected, duplicating...");
+      isSingleRecord = true;
+      mainDataForChart = [
+        {
+          ...mainData[0],
+          date: new Date(mainData[0].date.getTime() - 86400000),
+        }, // 1 day before
+        mainData[0],
+        {
+          ...mainData[0],
+          date: new Date(mainData[0].date.getTime() + 86400000),
+        }, // 1 day after
+      ];
+      console.log("Duplicated data:", mainDataForChart);
+    }
 
     const comparisonData = otherData
       ? otherData
@@ -78,10 +102,30 @@ export default function LineChart({
           .filter((d) => !isNaN(d.value) && isFinite(d.value)) // Filter out invalid values
       : [];
 
-    console.log("Processed mainData:", mainData);
-    console.log("Processed comparisonData:", comparisonData);
+    // Duplicate single record to create a horizontal line for comparison
+    let comparisonDataForChart = comparisonData;
+    if (comparisonData.length === 1) {
+      comparisonDataForChart = [
+        {
+          ...comparisonData[0],
+          date: new Date(comparisonData[0].date.getTime() - 86400000),
+        },
+        comparisonData[0],
+        {
+          ...comparisonData[0],
+          date: new Date(comparisonData[0].date.getTime() + 86400000),
+        },
+      ];
+    }
 
-    return { mainData, comparisonData };
+    console.log("Final mainData:", mainDataForChart);
+    console.log("Final comparisonData:", comparisonDataForChart);
+
+    return {
+      mainData: mainDataForChart,
+      comparisonData: comparisonDataForChart,
+      isSingleRecord,
+    };
   }, [data, otherData, isAverage]);
 
   // Accessors
@@ -100,11 +144,25 @@ export default function LineChart({
       ...processedData.comparisonData.map(getValue),
     ];
 
+    console.log("All dates:", allDates);
+    console.log("All values:", allValues);
+
     const margin = mini
       ? { top: 2, right: 2, bottom: 2, left: 2 }
       : { top: 20, right: 20, bottom: 40, left: 50 };
     const innerWidth = Math.max(width - margin.left - margin.right, 0);
     const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
+
+    console.log(
+      "Chart dimensions - width:",
+      width,
+      "height:",
+      height,
+      "innerWidth:",
+      innerWidth,
+      "innerHeight:",
+      innerHeight
+    );
 
     const xScale = scaleTime({
       domain: [Math.min(...allDates), Math.max(...allDates)],
@@ -114,8 +172,15 @@ export default function LineChart({
     // Dynamic y-axis: min value - 1 (or 0), max value + 1
     const minValue = Math.min(...allValues);
     const maxValue = Math.max(...allValues);
-    const yMin = Math.max(0, Math.floor(minValue) - 1);
-    const yMax = Math.ceil(maxValue) + 1;
+    // Handle case where min and max are the same (single value)
+    const yMin =
+      minValue === maxValue
+        ? Math.max(0, Math.floor(minValue) - 2)
+        : Math.max(0, Math.floor(minValue) - 1);
+    const yMax =
+      minValue === maxValue ? Math.ceil(maxValue) + 2 : Math.ceil(maxValue) + 1;
+
+    console.log("Y scale - min:", yMin, "max:", yMax);
 
     const yScale = scaleLinear({
       domain: [yMin, yMax],
@@ -206,6 +271,18 @@ export default function LineChart({
             <stop offset="100%" stopColor="#D0F500" stopOpacity="0" />
           </linearGradient>
           <linearGradient
+            id="singleRecordGradient"
+            x1={margin.left}
+            y1="0"
+            x2={margin.left + innerWidth}
+            y2="0"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0%" stopColor="#D0F500" stopOpacity="0" />
+            <stop offset="95%" stopColor="#D0F500" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#D0F500" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient
             id="comparisonChartGradient"
             x1="0%"
             y1="0%"
@@ -230,17 +307,99 @@ export default function LineChart({
           )}
 
           {/* Main Line */}
-          {processedData.mainData.length > 0 && (
-            <LinePath
-              data={processedData.mainData}
-              x={(d) => xScale(getDate(d))}
-              y={(d) => yScale(getValue(d))}
-              stroke="url(#lineChartGradient)"
-              strokeWidth={mini ? 2 : 3}
-              curve={curveMonotoneX}
-              className={mini ? "animate-draw-line-slow" : "animate-draw-line"}
-            />
-          )}
+          {(() => {
+            const shouldRender = processedData.mainData.length > 0;
+            console.log(
+              "Should render main line:",
+              shouldRender,
+              "Data length:",
+              processedData.mainData.length,
+              "isSingleRecord:",
+              processedData.isSingleRecord
+            );
+
+            if (!shouldRender) return null;
+
+            // For single records, render a simple line element instead of LinePath
+            if (
+              processedData.isSingleRecord &&
+              processedData.mainData.length > 0
+            ) {
+              const yCoord = yScale(getValue(processedData.mainData[0]));
+              const lineWidth = mini ? 2 : 3;
+              console.log(
+                "Rendering single record line at y:",
+                yCoord,
+                "innerWidth:",
+                innerWidth,
+                "x1:",
+                0,
+                "x2:",
+                innerWidth
+              );
+              console.log("Margin:", margin, "Total width:", width);
+              return (
+                <>
+                  <defs>
+                    <linearGradient
+                      id={`singleLineGradient-${mini ? "mini" : "full"}`}
+                      x1="0"
+                      y1="0"
+                      x2={innerWidth}
+                      y2="0"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop offset="0%" stopColor="#D0F500" stopOpacity="0" />
+                      <stop
+                        offset="95%"
+                        stopColor="#D0F500"
+                        stopOpacity="0.8"
+                      />
+                      <stop offset="100%" stopColor="#D0F500" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <line
+                    x1={0}
+                    x2={innerWidth}
+                    y1={yCoord}
+                    y2={yCoord}
+                    stroke={`url(#singleLineGradient-${
+                      mini ? "mini" : "full"
+                    })`}
+                    strokeWidth={lineWidth}
+                    className={
+                      mini ? "animate-draw-line-slow" : "animate-draw-line"
+                    }
+                  />
+                </>
+              );
+            }
+
+            // For multiple records, use LinePath
+            console.log(
+              "Main line coordinates:",
+              processedData.mainData.map((d) => ({
+                x: xScale(getDate(d)),
+                y: yScale(getValue(d)),
+                date: getDate(d),
+                value: getValue(d),
+              }))
+            );
+
+            return (
+              <LinePath
+                data={processedData.mainData}
+                x={(d) => xScale(getDate(d))}
+                y={(d) => yScale(getValue(d))}
+                stroke="url(#lineChartGradient)"
+                strokeWidth={mini ? 2 : 3}
+                curve={curveMonotoneX}
+                className={
+                  mini ? "animate-draw-line-slow" : "animate-draw-line"
+                }
+              />
+            );
+          })()}
 
           {/* Comparison Line */}
           {!mini && processedData.comparisonData.length > 0 && (

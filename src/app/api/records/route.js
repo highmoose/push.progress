@@ -46,7 +46,17 @@ export async function POST(request) {
     const { userId, exerciseId, weightKg, reps, recordDate, notes } =
       await request.json();
 
-    if (!userId || !exerciseId || !weightKg || !reps || !recordDate) {
+    if (
+      userId === undefined ||
+      userId === null ||
+      exerciseId === undefined ||
+      exerciseId === null ||
+      weightKg === undefined ||
+      weightKg === null ||
+      reps === undefined ||
+      reps === null ||
+      !recordDate
+    ) {
       return NextResponse.json(
         { success: false, error: "Missing required fields" },
         { status: 400 }

@@ -25,6 +25,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
   const [activeTab, setActiveTab] = useState("chart");
   const [editingRecord, setEditingRecord] = useState(null);
   const [deletingRecord, setDeletingRecord] = useState(null);
+  const [errorModal, setErrorModal] = useState({ show: false, message: "" });
 
   // Add record form
   const [weightKg, setWeightKg] = useState("");
@@ -73,15 +74,20 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
 
     setTouched(true);
 
-    if (weightKg === "" || reps === "") return;
+    // Parse values and validate
+    const weight = parseFloat(weightKg);
+    const repCount = parseInt(reps);
+
+    // Check if values are valid numbers (allows 0)
+    if (isNaN(weight) || weight < 0 || isNaN(repCount) || repCount < 0) return;
 
     try {
       setIsSubmitting(true);
       await createRecord({
         userId: user.id,
         exerciseId: exercise.id,
-        weightKg: parseFloat(weightKg),
-        reps: parseInt(reps),
+        weightKg: weight,
+        reps: repCount,
         recordDate: recordDate.toString(),
       });
 
@@ -93,7 +99,10 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
       onUpdate();
     } catch (error) {
       console.error("Failed to add record:", error);
-      alert("Failed to add record");
+      setErrorModal({
+        show: true,
+        message: "Failed to add record. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -107,7 +116,10 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
       onUpdate();
     } catch (error) {
       console.error("Failed to delete record:", error);
-      alert("Failed to delete record");
+      setErrorModal({
+        show: true,
+        message: "Failed to delete record. Please try again.",
+      });
     }
   };
 
@@ -119,7 +131,10 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
       onUpdate();
     } catch (error) {
       console.error("Failed to update record:", error);
-      alert("Failed to update record");
+      setErrorModal({
+        show: true,
+        message: "Failed to update record. Please try again.",
+      });
     }
   };
 
@@ -242,7 +257,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
         {/* Chart View */}
         {activeTab === "chart" && (
           <div className="px-4 pb-6">
-            <div className="rounded-lg bg-[#0f0f0f] min-h-[356px] ">
+            <div className="rounded-lg bg-[#0f0f0f] min-h-[350px] ">
               {loading ? (
                 <div className="flex h-64 items-center justify-center">
                   <p className="text-sm text-gray-500">Loading chart...</p>
@@ -282,9 +297,9 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
                           return (
                             <>
                               {progress >= 0 ? (
-                                <i className="bx bx-up-arrow-alt text-[14px] leading-none pb-[2px]"></i>
+                                <i className="bx bx-up-arrow-alt text-[14px] leading-none pb-[1px]"></i>
                               ) : (
-                                <i className="bx bx-down-arrow-alt text-[14px] leading-none pb-[2px]"></i>
+                                <i className="bx bx-down-arrow-alt text-[14px] leading-none pb-[1px]"></i>
                               )}
                               {progress.toFixed(1)}%
                             </>
@@ -324,7 +339,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
         {/* List View */}
         {activeTab === "list" && (
           <div className="px-4 pb-6">
-            <div className=" max-h-[364px] overflow-y-auto">
+            <div className="h-[350px] overflow-y-auto">
               {loading ? (
                 <div className="flex h-full items-center justify-center">
                   <p className="text-sm text-gray-500">Loading records...</p>
@@ -433,6 +448,14 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
           record={deletingRecord}
           onClose={() => setDeletingRecord(null)}
           onConfirm={() => handleDeleteRecord(deletingRecord.id)}
+        />
+      )}
+
+      {/* Error Modal */}
+      {errorModal.show && (
+        <ErrorModal
+          message={errorModal.message}
+          onClose={() => setErrorModal({ show: false, message: "" })}
         />
       )}
     </div>
@@ -661,6 +684,31 @@ function DeleteConfirmModal({ record, onClose, onConfirm }) {
             {isDeleting ? "Deleting..." : "Delete"}
           </Button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ErrorModal({ message, onClose }) {
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-6"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-2xl bg-[#0a0a0a] p-6 shadow-[0_0_64px_0_rgba(255,255,255,0.12)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-white font-[family-name:var(--font-tektur)]">
+            Error
+          </h2>
+          <p className="text-xs text-gray-500 mt-2">{message}</p>
+        </div>
+
+        <Button color="primary" onPress={onClose} className="w-full">
+          OK
+        </Button>
       </div>
     </div>
   );
