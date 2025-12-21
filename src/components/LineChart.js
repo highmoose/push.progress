@@ -10,6 +10,7 @@ import { curveMonotoneX } from "@visx/curve";
 import { useParentSize } from "@visx/responsive";
 import { localPoint } from "@visx/event";
 import { bisector } from "d3-array";
+import LottieSpinner from "./LottieSpinner";
 
 export default function LineChart({
   data,
@@ -18,6 +19,7 @@ export default function LineChart({
   otherUserName,
   isAverage = false,
   mini = false,
+  loading = false,
 }) {
   const {
     parentRef,
@@ -38,8 +40,6 @@ export default function LineChart({
 
   // Prepare data
   const processedData = useMemo(() => {
-    console.log("Raw data received:", data);
-
     const mainData = data
       .map((d) => {
         const weight = isAverage
@@ -57,15 +57,13 @@ export default function LineChart({
           reps: reps,
         };
       })
-      .filter((d) => !isNaN(d.value) && isFinite(d.value)); // Filter out invalid values
-
-    console.log("After processing, mainData length:", mainData.length);
+      .filter((d) => !isNaN(d.value) && isFinite(d.value)) // Filter out invalid values
+      .sort((a, b) => a.date - b.date); // Sort by date ascending
 
     // Duplicate single record to create a horizontal line
     let mainDataForChart = mainData;
     let isSingleRecord = false;
     if (mainData.length === 1) {
-      console.log("Single record detected, duplicating...");
       isSingleRecord = true;
       mainDataForChart = [
         {
@@ -78,7 +76,6 @@ export default function LineChart({
           date: new Date(mainData[0].date.getTime() + 86400000),
         }, // 1 day after
       ];
-      console.log("Duplicated data:", mainDataForChart);
     }
 
     const comparisonData = otherData
@@ -100,6 +97,7 @@ export default function LineChart({
             };
           })
           .filter((d) => !isNaN(d.value) && isFinite(d.value)) // Filter out invalid values
+          .sort((a, b) => a.date - b.date) // Sort by date ascending
       : [];
 
     // Duplicate single record to create a horizontal line for comparison
@@ -117,9 +115,6 @@ export default function LineChart({
         },
       ];
     }
-
-    console.log("Final mainData:", mainDataForChart);
-    console.log("Final comparisonData:", comparisonDataForChart);
 
     return {
       mainData: mainDataForChart,
@@ -144,25 +139,11 @@ export default function LineChart({
       ...processedData.comparisonData.map(getValue),
     ];
 
-    console.log("All dates:", allDates);
-    console.log("All values:", allValues);
-
     const margin = mini
       ? { top: 2, right: 2, bottom: 2, left: 2 }
       : { top: 20, right: 20, bottom: 40, left: 50 };
     const innerWidth = Math.max(width - margin.left - margin.right, 0);
     const innerHeight = Math.max(height - margin.top - margin.bottom, 0);
-
-    console.log(
-      "Chart dimensions - width:",
-      width,
-      "height:",
-      height,
-      "innerWidth:",
-      innerWidth,
-      "innerHeight:",
-      innerHeight
-    );
 
     const xScale = scaleTime({
       domain: [Math.min(...allDates), Math.max(...allDates)],
@@ -179,8 +160,6 @@ export default function LineChart({
         : Math.max(0, Math.floor(minValue) - 1);
     const yMax =
       minValue === maxValue ? Math.ceil(maxValue) + 2 : Math.ceil(maxValue) + 1;
-
-    console.log("Y scale - min:", yMin, "max:", yMax);
 
     const yScale = scaleLinear({
       domain: [yMin, yMax],
@@ -274,6 +253,27 @@ export default function LineChart({
 
   return (
     <div ref={parentRef} style={{ width: "100%", position: "relative" }}>
+      {/* Loading Spinner Overlay - only for non-mini charts */}
+      {!mini && loading && (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10,
+            pointerEvents: "none",
+            height: height,
+          }}
+        >
+          <LottieSpinner size={50} opacity={0.15} />
+        </div>
+      )}
+
       <svg width={width} height={height}>
         <defs>
           <linearGradient
@@ -326,14 +326,6 @@ export default function LineChart({
           {/* Main Line */}
           {(() => {
             const shouldRender = processedData.mainData.length > 0;
-            console.log(
-              "Should render main line:",
-              shouldRender,
-              "Data length:",
-              processedData.mainData.length,
-              "isSingleRecord:",
-              processedData.isSingleRecord
-            );
 
             if (!shouldRender) return null;
 
@@ -344,17 +336,6 @@ export default function LineChart({
             ) {
               const yCoord = yScale(getValue(processedData.mainData[0]));
               const lineWidth = mini ? 2 : 3;
-              console.log(
-                "Rendering single record line at y:",
-                yCoord,
-                "innerWidth:",
-                innerWidth,
-                "x1:",
-                0,
-                "x2:",
-                innerWidth
-              );
-              console.log("Margin:", margin, "Total width:", width);
               return (
                 <>
                   <defs>
@@ -393,16 +374,6 @@ export default function LineChart({
             }
 
             // For multiple records, use LinePath
-            console.log(
-              "Main line coordinates:",
-              processedData.mainData.map((d) => ({
-                x: xScale(getDate(d)),
-                y: yScale(getValue(d)),
-                date: getDate(d),
-                value: getValue(d),
-              }))
-            );
-
             return (
               <LinePath
                 data={processedData.mainData}
@@ -572,7 +543,7 @@ export default function LineChart({
       )}
 
       {/* Legend */}
-      {!mini && (
+      {!mini && !loading && (
         <div className=" flex items-center justify-center gap-6 -mt-2">
           <div className="flex items-center gap-2">
             <div className="h-[3px] w-6 bg-primary" />

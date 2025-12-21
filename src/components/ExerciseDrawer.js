@@ -258,11 +258,7 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
         {activeTab === "chart" && (
           <div className="px-4 pb-6">
             <div className="rounded-lg bg-[#0f0f0f] min-h-[350px] ">
-              {loading ? (
-                <div className="flex h-64 items-center justify-center">
-                  <p className="text-sm text-gray-500">Loading chart...</p>
-                </div>
-              ) : records.length === 0 ? (
+              {!loading && records.length === 0 ? (
                 <div className="flex h-[330px] items-center justify-center">
                   <p className="text-sm text-gray-500">
                     No data yet. Add your first record below!
@@ -271,64 +267,92 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
               ) : (
                 <>
                   {/* Stats Section */}
-                  <div className="grid grid-cols-3 pt-3 px-6">
-                    <div className="text-center flex items-center gap-1 mx-auto">
-                      <p className="text-[11px] text-zinc-500">Progress</p>
-                      <p
-                        className={`text-[11px] flex items-center ${(() => {
-                          const firstWeight = parseFloat(records[0].weight_kg);
-                          const lastWeight = parseFloat(
-                            records[records.length - 1].weight_kg
-                          );
-                          const progress =
-                            ((lastWeight - firstWeight) / firstWeight) * 100;
-                          return progress >= 0
-                            ? "text-[#D0F500]"
-                            : "text-red-500";
-                        })()}`}
-                      >
-                        {(() => {
-                          const firstWeight = parseFloat(records[0].weight_kg);
-                          const lastWeight = parseFloat(
-                            records[records.length - 1].weight_kg
-                          );
-                          const progress =
-                            ((lastWeight - firstWeight) / firstWeight) * 100;
-                          return (
-                            <>
-                              {progress >= 0 ? (
-                                <i className="bx bx-up-arrow-alt text-[14px] leading-none pb-[1px]"></i>
-                              ) : (
-                                <i className="bx bx-down-arrow-alt text-[14px] leading-none pb-[1px]"></i>
-                              )}
-                              {progress.toFixed(1)}%
-                            </>
-                          );
-                        })()}
-                      </p>
+                  {records.length > 0 && (
+                    <div className="grid grid-cols-3 pt-3 px-6">
+                      <div className="text-center flex items-center gap-1 mx-auto">
+                        <p className="text-[11px] text-zinc-500">Progress</p>
+                        <p
+                          className={`text-[11px] flex items-center ${(() => {
+                            const sortedRecords = [...records].sort(
+                              (a, b) =>
+                                new Date(a.record_date) -
+                                new Date(b.record_date)
+                            );
+                            const firstWeight = parseFloat(
+                              sortedRecords[0].weight_kg
+                            );
+                            const lastWeight = parseFloat(
+                              sortedRecords[sortedRecords.length - 1].weight_kg
+                            );
+                            const progress =
+                              ((lastWeight - firstWeight) / firstWeight) * 100;
+                            return progress >= 0
+                              ? "text-[#D0F500]"
+                              : "text-red-500";
+                          })()}`}
+                        >
+                          {(() => {
+                            const sortedRecords = [...records].sort(
+                              (a, b) =>
+                                new Date(a.record_date) -
+                                new Date(b.record_date)
+                            );
+                            const firstWeight = parseFloat(
+                              sortedRecords[0].weight_kg
+                            );
+                            const lastWeight = parseFloat(
+                              sortedRecords[sortedRecords.length - 1].weight_kg
+                            );
+                            const progress =
+                              ((lastWeight - firstWeight) / firstWeight) * 100;
+                            return (
+                              <>
+                                {progress >= 0 ? (
+                                  <i className="bx bx-up-arrow-alt text-[14px] leading-none pb-[1px]"></i>
+                                ) : (
+                                  <i className="bx bx-down-arrow-alt text-[14px] leading-none pb-[1px]"></i>
+                                )}
+                                {progress.toFixed(1)}%
+                              </>
+                            );
+                          })()}
+                        </p>
+                      </div>
+                      <div className="text-center flex items-center gap-1 mx-auto">
+                        <p className="text-[11px] text-zinc-600">Current</p>
+                        <p className="text-[11px] text-white">
+                          {" "}
+                          {(() => {
+                            const sortedRecords = [...records].sort(
+                              (a, b) =>
+                                new Date(a.record_date) -
+                                new Date(b.record_date)
+                            );
+                            return parseFloat(
+                              sortedRecords[sortedRecords.length - 1].weight_kg
+                            );
+                          })()}{" "}
+                          KG
+                        </p>
+                      </div>
+                      <div className="text-center flex items-center gap-1 mx-auto">
+                        <p className="text-[11px] text-zinc-500">Workouts</p>
+                        <p className="text-[11px] text-white">
+                          {" "}
+                          {records.length}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-center flex items-center gap-1 mx-auto">
-                      <p className="text-[11px] text-zinc-600">Current</p>
-                      <p className="text-[11px] text-white">
-                        {" "}
-                        {parseFloat(records[records.length - 1].weight_kg)} KG
-                      </p>
-                    </div>
-                    <div className="text-center flex items-center gap-1 mx-auto">
-                      <p className="text-[11px] text-zinc-500">Workouts</p>
-                      <p className="text-[11px] text-white">
-                        {" "}
-                        {records.length}
-                      </p>
-                    </div>
-                  </div>
+                  )}
 
                   {/* Chart */}
                   <LineChart
+                    key={`chart-${activeTab}-${dateFilter}`}
                     data={records}
                     otherData={showOtherUser ? otherUserRecords : null}
                     userName={user.username}
                     otherUserName={user.username === "Adam" ? "Cory" : "Adam"}
+                    loading={loading}
                   />
                 </>
               )}
@@ -339,12 +363,13 @@ export default function ExerciseDrawer({ exercise, user, onClose, onUpdate }) {
         {/* List View */}
         {activeTab === "list" && (
           <div className="px-4 pb-6">
-            <div className="h-[350px] overflow-y-auto">
-              {loading ? (
-                <div className="flex h-full items-center justify-center">
-                  <p className="text-sm text-gray-500">Loading records...</p>
+            <div className="h-[350px] overflow-y-auto relative">
+              {loading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
+                  <LottieSpinner size={120} opacity={0.15} />
                 </div>
-              ) : records.length === 0 ? (
+              )}
+              {records.length === 0 ? (
                 <div className="flex h-[150px] items-center justify-center">
                   <p className="text-sm text-gray-500">
                     No records yet. Add your first record below!
@@ -477,11 +502,11 @@ function RecordItem({ record, onEdit, onDelete }) {
       <div className="flex-1">
         <div className="flex items-center gap-3">
           <div>
-            <p className="text-white font-medium tracking-wide font-[family-name:var(--font-tektur)]">
-              <span className="text-primary">{record.weight_kg} KG</span> ×{" "}
-              {record.reps} Reps
+            <p className="text-white text-[15px] tracking-wide ">
+              <span className="text-primary ">{record.weight_kg} KG</span> ×{" "}
+              {record.reps} <span>Reps</span>
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 -mt-[1px]">
               {formatDate(record.record_date)}
             </p>
           </div>
@@ -656,7 +681,7 @@ function DeleteConfirmModal({ record, onClose, onConfirm }) {
           </p>
         </div>
 
-        <div className="mb-6 p-3 rounded-lg bg-[#0f0f0f] border border-[#2a2a2a]">
+        <div className="mb-6 p-3 rounded-lg bg-[#0f0f0f]">
           <p className="text-white font-medium font-[family-name:var(--font-tektur)]">
             <span className="text-primary">{record.weight_kg} KG</span> ×{" "}
             {record.reps} Reps

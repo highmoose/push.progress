@@ -184,12 +184,8 @@ export default function ComparisonDrawer({ user, onClose }) {
         {/* Comparison Chart */}
         <div className="px-4">
           <div className="rounded-lg bg-[#0f0f0f] pb-5">
-            {loading ? (
-              <div className="flex h-64 items-center justify-center">
-                <p className="text-sm text-gray-500">Loading comparison...</p>
-              </div>
-            ) : !comparisonData ||
-              (!selectedExercise && !selectedMuscleGroup) ? (
+            {!loading &&
+            (!comparisonData || (!selectedExercise && !selectedMuscleGroup)) ? (
               <div className="flex h-64 items-center justify-center">
                 <p className="text-sm text-gray-500">
                   {comparisonType === "muscle"
@@ -197,7 +193,9 @@ export default function ComparisonDrawer({ user, onClose }) {
                     : "Select an exercise to compare"}
                 </p>
               </div>
-            ) : comparisonData.user1.length === 0 &&
+            ) : !loading &&
+              comparisonData &&
+              comparisonData.user1.length === 0 &&
               comparisonData.user2.length === 0 ? (
               <div className="flex h-64 items-center justify-center">
                 <p className="text-sm text-gray-500">
@@ -206,11 +204,12 @@ export default function ComparisonDrawer({ user, onClose }) {
               </div>
             ) : (
               <LineChart
-                data={comparisonData.user1}
-                otherData={comparisonData.user2}
+                data={comparisonData?.user1 || []}
+                otherData={comparisonData?.user2 || []}
                 userName={user.username}
                 otherUserName={otherUserName}
                 isAverage={comparisonType === "muscle"}
+                loading={loading}
               />
             )}
           </div>

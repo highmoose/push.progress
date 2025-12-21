@@ -17,6 +17,7 @@ import ComparisonDrawer from "@/components/ComparisonDrawer";
 import AddExerciseModal from "@/components/AddExerciseModal";
 import ManageExercisesDrawer from "@/components/ManageExercisesDrawer";
 import LineChart from "@/components/LineChart";
+import LottieSpinner from "@/components/LottieSpinner";
 import Image from "next/image";
 
 export default function HomePage() {
@@ -250,7 +251,7 @@ export default function HomePage() {
       <div className="flex-1 overflow-y-auto px-4 py-6 pb-24">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <p className="text-sm text-gray-500">Loading exercises...</p>
+            <LottieSpinner size={50} opacity={0.15} />
           </div>
         ) : selectedFilter === "all" ? (
           Object.entries(groupedExercises()).map(
