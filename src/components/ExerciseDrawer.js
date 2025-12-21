@@ -13,6 +13,7 @@ import {
   DATE_FILTER_DAYS,
 } from "@/lib/constants";
 import LineChart from "./LineChart";
+import LottieSpinner from "./LottieSpinner";
 import { Button, Input, Switch, Tabs, Tab, DatePicker } from "@heroui/react";
 import { parseDate, today } from "@internationalized/date";
 
@@ -682,11 +683,11 @@ function DeleteConfirmModal({ record, onClose, onConfirm }) {
         </div>
 
         <div className="mb-6 p-3 rounded-lg bg-[#0f0f0f]">
-          <p className="text-white font-medium font-[family-name:var(--font-tektur)]">
-            <span className="text-primary">{record.weight_kg} KG</span> ×{" "}
-            {record.reps} Reps
+          <p className="text-white text-[15px] tracking-wide ">
+            <span className="text-primary ">{record.weight_kg} KG</span> ×{" "}
+            {record.reps} <span>Reps</span>
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 -mt-[1px]">
             {formatDate(record.record_date)}
           </p>
         </div>
